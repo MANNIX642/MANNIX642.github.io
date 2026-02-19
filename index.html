@@ -1263,7 +1263,7 @@ function closeReel() {
 	'superbowl': {
     title: "Super Bowl Pitch",
     desc: "My first animatic ever. The assignment was to create a Super Bowl commercial with a product and a celebrity, but I asked if I could make a commercial for the Super Bowl instead. So I pitched a Netflix sponsorship for Super Bowl LIX featuring The Queen's Gambit. The funny thing is I don't watch football and I've never seen the show. It was just the first thing that came to mind and I rolled with it. The animatic follows the actual order of a football game and a chess match side by side, which is one of my favorite details. Everything was hand drawn on paper, cleaned up in Photoshop, and animated in After Effects.",
-    media: ["The Queen's Gambit SuperBowl Commercial.mp4"]
+    media: ["https://drive.google.com/file/d/1CvWLpkulwIgiJ_SFV-xhOCMs9XPzKovU/preview"]
 },
     'archive-clock': {
     title: "The Stopwatch",
@@ -1317,7 +1317,7 @@ function closeReel() {
     'gnomon-app': {
     title: "Gnomon Application Reel",
     desc: "A 6 minute application reel I edited to match the style of the official Gnomon student reel, replicating their intro and outro almost 1:1. I worked closely with a Gnomon admissions advisor on what to include and in what order. It took about a week and a half to cut together. Looking back, I've outgrown most of the work in this reel, but it did what it needed to do. I got in.",
-    media: ['PORTFOLIO FINAL FINAL RENDER.mp4']
+    media: ["https://drive.google.com/file/d/11lpEveXoNmb_4N2cWafO5kIxJPQYFp6j/preview"]
 },
     'unreal': {
         title: "Subway Environment (WIP)",
@@ -1331,7 +1331,14 @@ function closeReel() {
             document.getElementById(pageId + '-page').classList.add('active-page');
             window.scrollTo({top: 0, behavior: 'smooth'});
         }
-        function navigateToContact() { navigateTo('home'); setTimeout(() => { document.getElementById('contact').scrollIntoView({behavior: 'smooth'}); }, 100); toggleMenu(); }
+function navigateToContact() { 
+    navigateTo('home'); 
+    setTimeout(() => { 
+        document.getElementById('contact').scrollIntoView({behavior: 'smooth'}); 
+    }, 100);
+    const menu = document.getElementById('side-menu');
+    if (menu.classList.contains('active')) toggleMenu();
+}
         function toggleMenu() { document.getElementById('side-menu').classList.toggle('active'); document.getElementById('menu-overlay').classList.toggle('active'); }
         function countChars() { const m = document.getElementById('message'); const c = document.getElementById('count'); c.innerText = 600 - m.value.length; c.style.color = (600 - m.value.length) < 50 ? "#ff4444" : "#666"; }
 
@@ -1998,16 +2005,6 @@ function fullscreenMedia() {
         if (mainView.requestFullscreen) mainView.requestFullscreen();
         else if (mainView.webkitRequestFullscreen) mainView.webkitRequestFullscreen();
     }
-}
-// Auto-play first video in modal with audio
-const modalVid = content.querySelector('video');
-if (modalVid) {
-    modalVid.muted = true;
-    modalVid.volume = 0.8;
-    modalVid.addEventListener('loadeddata', function() {
-        modalVid.play();
-    });
-    modalVid.load();
 }
 document.addEventListener('fullscreenchange', () => {
     if (document.fullscreenElement) {
