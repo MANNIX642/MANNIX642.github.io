@@ -1,0 +1,2025 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SLATON | 3D GENERALIST 2026</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=JetBrains+Mono:wght@300;500;800&family=Permanent+Marker&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --pop-color: #00f3ff; 
+            --bg-dark: #050505;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg-dark);
+            color: #e0e0e0;
+            font-family: 'JetBrains Mono', monospace;
+            overflow-x: hidden;
+            cursor: none; 
+        }
+
+        /* --- TYPOGRAPHY --- */
+        .hero-font { font-family: 'Syncopate', sans-serif; font-style: normal !important; }
+        .marker-font { font-family: 'Permanent Marker', cursive; }
+        
+        /* GLOWING TEXT */
+        .neon-text {
+            color: #fff;
+            text-shadow: 
+                0 0 5px #fff,
+                0 0 10px #fff,
+                0 0 20px var(--pop-color),
+                0 0 40px var(--pop-color);
+        }
+
+        /* --- CUSTOM CURSOR --- */
+        #cursor {
+            width: 30px; height: 30px; 
+            border: 1.5px solid var(--pop-color);
+            border-radius: 50%;
+            position: fixed; pointer-events: none; z-index: 9999;
+            transition: transform 0.15s ease-out;
+            transform: translate(-50%, -50%);
+        }
+        #cursor-dot {
+            width: 6px; height: 6px; 
+            background: var(--pop-color);
+            border-radius: 50%;
+            position: fixed; pointer-events: none; z-index: 9999;
+            transform: translate(-50%, -50%);
+        }
+        html, body, * { cursor: none !important; }
+
+        /* --- MENU OVERLAY --- */
+        #menu-overlay {
+            position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); 
+            backdrop-filter: blur(5px); z-index: 90; opacity: 0; pointer-events: none; transition: opacity 0.5s ease;
+        }
+        #menu-overlay.active { opacity: 1; pointer-events: auto; }
+
+        /* --- PAGE TRANSITIONS --- */
+        .page-section { display: none; opacity: 0; transition: opacity 0.5s ease; padding-top: 100px; min-height: 100vh; }
+        .page-section.active-page { display: block; opacity: 1; }
+
+        /* --- SIDE NAV --- */
+        #side-menu {
+            position: fixed; top: 0; left: -320px; width: 320px; height: 100vh;
+            background: rgba(5, 5, 5, 0.98); backdrop-filter: blur(20px); z-index: 100;
+            transition: left 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            border-right: 1px solid var(--pop-color); display: flex; flex-direction: column; padding: 100px 40px;
+        }
+        #side-menu.active { left: 0; box-shadow: 20px 0 100px rgba(0, 243, 255, 0.1); }
+        .close-menu-btn { position: absolute; top: 35px; right: 25px; cursor: pointer; color: white; }
+        .menu-link { font-size: 16px; text-transform: uppercase; letter-spacing: 0.2em; margin-bottom: 30px; transition: 0.3s; color: #888; cursor: pointer; }
+        .menu-link:hover { color: var(--pop-color); padding-left: 15px; }
+
+        /* --- NAV BAR --- */
+        #nav-bar { transition: background-color 0.5s ease; }
+        #nav-bar.scrolled { background-color: rgba(0, 0, 0, 0.8); backdrop-filter: blur(10px); }
+
+        /* --- VIDEO PLAYER STYLES --- */
+        .custom-video-wrapper {
+            position: relative; width: 100%; height: 100%;
+            background: #000; overflow: hidden;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .custom-video-wrapper video { width: 100%; height: 100%; object-fit: contain; }
+        .video-controls {
+            position: absolute; bottom: 0; left: 0; width: 100%;
+            background: linear-gradient(to top, #000 10%, transparent);
+            padding: 20px; display: flex; align-items: center; gap: 15px;
+            opacity: 0; transition: opacity 0.3s ease; z-index: 50;
+        }
+        .custom-video-wrapper:hover .video-controls { opacity: 1; }
+        .control-btn {
+            background: rgba(0,0,0,0.5); border: 1px solid var(--pop-color); color: var(--pop-color);
+            width: 35px; height: 35px; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-size: 12px; transition: all 0.2s;
+        }
+        .control-btn:hover { background: var(--pop-color); color: black; }
+        input[type=range] { -webkit-appearance: none; background: transparent; cursor: pointer; flex-grow: 1; }
+        .progress-bar { height: 4px; background: rgba(255,255,255,0.2); }
+        .progress-bar::-webkit-slider-thumb { -webkit-appearance: none; height: 12px; width: 12px; background: var(--pop-color); border-radius: 50%; margin-top: -4px; }
+
+        /* --- MASKED HEADER --- */
+        #masked-header {
+            opacity: 0; transform: translateX(30px); transition: all 0.5s ease;
+            position: absolute; right: 20px; height: 100%; display: flex; align-items: center; pointer-events: none; z-index: 50;
+        }
+        #masked-header.visible { opacity: 1; transform: translateX(0); pointer-events: auto; }
+        .mask-container { width: 800px; height: 120px; position: relative; } 
+        .mask-svg { width: 100%; height: 100%; }
+        .masked-content { mask: url(#textMask); -webkit-mask: url(#textMask); }
+
+        /* --- TOOLSET SCROLL --- */
+        #toolset { padding: 40px 0; background: #080808; border-y: 1px solid rgba(255,255,255,0.05); overflow: hidden; position: relative; }
+        .toolset-track { display: flex; width: max-content; animation: scroll 35s linear infinite; }
+        .tool-link { margin-right: 80px; }
+        .tool-icon { width: 50px; height: 50px; object-fit: contain; filter: invert(1) grayscale(100%); transition: 0.3s; }
+        img[src*="maya"] { filter: grayscale(100%) brightness(0.9) !important; }
+        .tool-link:hover .tool-icon { transform: scale(1.3); }
+        @keyframes scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-10%); } }
+        .vignette-left { position: absolute; top: 0; bottom: 0; left: 0; width: 200px; background: linear-gradient(to right, #080808, transparent); z-index: 10; pointer-events: none; }
+        .vignette-right { position: absolute; top: 0; bottom: 0; right: 0; width: 200px; background: linear-gradient(to left, #080808, transparent); z-index: 10; pointer-events: none; }
+
+        /* --- HOLO DECK --- */
+        .holo-deck {
+            display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 1400px; margin: 0 auto;
+        }
+        @media (min-width: 1024px) {
+            .holo-deck { flex-direction: row; height: 600px; gap: 0; }
+        }
+        .holo-panel {
+            position: relative; flex: 1;
+            background: linear-gradient(180deg, rgba(20,20,20,0.4) 0%, rgba(10,10,10,0.9) 100%);
+            border-right: 1px solid rgba(255,255,255,0.05); overflow: hidden;
+            transition: flex 0.7s cubic-bezier(0.16, 1, 0.3, 1), background 0.5s ease;
+            cursor: pointer; display: flex; flex-direction: column; justify-content: flex-end; padding: 40px;
+        }
+        .holo-panel:first-child { border-left: 1px solid rgba(255,255,255,0.05); }
+        .holo-panel:hover { flex: 2.5; background: linear-gradient(180deg, rgba(20,20,20,0.2) 0%, rgba(0,15,20,0.95) 100%); }
+        .bg-number { position: absolute; top: -20px; right: -20px; font-family: 'Syncopate'; font-size: 200px; font-weight: 700; color: rgba(255,255,255,0.02); transition: 0.7s; pointer-events: none; }
+        .holo-panel:hover .bg-number { color: rgba(0,243,255,0.05); transform: translateX(-20px) scale(1.1); }
+        .status-indicator { position: absolute; top: 0; left: 0; width: 100%; height: 2px; background: rgba(255,255,255,0.1); transition: 0.5s; }
+        .holo-panel:hover .status-indicator { background: var(--pop-color); box-shadow: 0 0 30px var(--pop-color); }
+        .panel-category { font-size: 11px; color: var(--pop-color); letter-spacing: 0.3em; margin-bottom: 15px; font-weight: bold; opacity: 0.7; display: flex; align-items: center; gap: 10px; }
+        .panel-category::before { content:''; width: 20px; height: 1px; background: var(--pop-color); }
+        .panel-title { font-family: 'Syncopate'; font-size: 32px; color: white; margin-bottom: 0; transition: 0.6s; line-height: 1.1; font-weight: 700; }
+        .holo-panel:hover .panel-title { transform: translateY(-20px); text-shadow: 0 0 20px rgba(0,0,0,0.5); }
+        .panel-details { max-height: 0; opacity: 0; transform: translateY(20px); transition: 0.6s ease; }
+        .holo-panel:hover .panel-details { max-height: 200px; opacity: 1; transform: translateY(-10px); transition-delay: 0.1s; }
+        .detail-text { font-size: 14px; color: #a0a0a0; line-height: 1.6; margin-bottom: 25px; border-left: 2px solid rgba(255,255,255,0.1); padding-left: 20px; }
+        .panel-link { font-size: 12px; color: white; letter-spacing: 0.2em; font-weight: bold; text-decoration: none; border-bottom: 1px solid var(--pop-color); padding-bottom: 5px; transition: 0.3s; }
+        .panel-link:hover { color: var(--pop-color); box-shadow: 0 5px 20px -10px var(--pop-color); }
+
+        /* --- CONTACT STYLES --- */
+        .contact-layout { display: flex; flex-direction: column; gap: 60px; align-items: center; }
+        @media (min-width: 1024px) { .contact-layout { flex-direction: row; align-items: flex-start; gap: 80px; } }
+        .identity-group { display: flex; gap: 40px; align-items: flex-start; }
+        .photo-outer-wrapper { position: relative; width: 300px; height: 380px; flex-shrink: 0; margin: 0 auto; overflow: visible; }
+        .photo-frame { width: 100%; height: 100%; position: relative; overflow: hidden; border: 2px solid rgba(0, 243, 255, 0.3); transition: all 0.4s ease; }
+        .photo-outer-wrapper:hover .photo-frame { border-color: var(--pop-color); box-shadow: 0 0 50px rgba(0, 243, 255, 0.5); transform: scale(1.15); }
+        .photo-frame img { width: 100%; height: 100%; object-fit: cover; object-position: top; position: absolute; top: 0; left: 0; transition: all 0.5s; }
+        .img-bw { opacity: 1; z-index: 2; }
+        .img-color { opacity: 0; z-index: 1; transform: scale(1.1); }
+        .photo-outer-wrapper:hover .img-bw { opacity: 0; }
+        .photo-outer-wrapper:hover .img-color { opacity: 1; transform: scale(1); }
+        .whimsical-arrow { position: absolute; bottom: -30px; left: -90px; pointer-events: none; z-index: 20; display: flex; flex-direction: column; align-items: center; }
+        .whimsical-text { font-family: 'Permanent Marker', cursive; color: var(--pop-color); font-size: 42px; transform: rotate(-10deg); white-space: nowrap; margin-bottom: 0px; text-shadow: 0 0 10px rgba(0,0,0,0.8); margin-right: 80px; }
+        .arrow-icon { width: 90px; height: auto; filter: invert(76%) sepia(58%) saturate(3694%) hue-rotate(156deg) brightness(102%) contrast(101%); order: -1; margin-bottom: -10px; margin-left: 140px; transform: scaleX(-1) rotate(26deg); }
+        .social-column { display: flex; flex-direction: column; gap: 40px; justify-content: center; height: 380px; }
+        .social-item { display: flex; align-items: center; gap: 30px; height: 60px; text-decoration: none; margin-bottom: 20px; }
+        .social-icon-wrapper svg { width: 50px; height: 50px; transition: all 0.3s ease; color: white; }
+        .social-item:hover svg { transform: scale(1.2); filter: drop-shadow(0 0 10px var(--pop-color)); color: var(--pop-color); }
+        .social-text-wrapper { position: relative; height: 40px; overflow: hidden; width: 350px; }
+        .social-text { position: absolute; left: 0; top: 0; transition: transform 0.3s ease; color: #888; font-size: 32px; letter-spacing: 0.1em; font-weight: bold; }
+        .social-handle { position: absolute; left: 0; top: 100%; transition: transform 0.3s ease; color: var(--pop-color); font-size: 32px; font-weight: 800; letter-spacing: 0.05em; }
+        .social-item:hover .social-text { transform: translateY(-100%); }
+        .social-item:hover .social-handle { transform: translateY(-100%); }
+        .bio-btn { display: flex; align-items: center; justify-content: space-between; padding: 25px 30px; margin-top: 10px; border: 1px solid rgba(255,255,255,0.15); background: linear-gradient(90deg, rgba(0,0,0,0.5) 0%, rgba(0, 243, 255, 0.05) 100%); cursor: pointer; transition: all 0.4s ease; position: relative; overflow: hidden; }
+        .bio-btn::before { content: ''; position: absolute; left: 0; top: 0; height: 100%; width: 3px; background: #444; transition: all 0.3s ease; }
+        .bio-btn:hover { border-color: var(--pop-color); background: rgba(0, 243, 255, 0.1); transform: translateX(10px); }
+        .bio-btn:hover::before { background: var(--pop-color); box-shadow: 0 0 15px var(--pop-color); }
+        .bio-text-group { display: flex; flex-direction: column; }
+        .bio-label { font-size: 9px; color: #666; letter-spacing: 0.3em; margin-bottom: 5px; }
+        .bio-main { font-size: 18px; color: white; font-weight: bold; letter-spacing: 0.1em; transition: color 0.3s ease; }
+        .bio-btn:hover .bio-main { color: var(--pop-color); }
+        .bio-icon { color: #666; transition: all 0.3s ease; transform: translateX(0); }
+        .bio-btn:hover .bio-icon { color: var(--pop-color); transform: translateX(5px); }
+        .form-container { flex-grow: 1; width: 100%; }
+        input, textarea { background-color: rgba(255, 255, 255, 0.05) !important; border: 1px solid rgba(255, 255, 255, 0.2); color: white; padding: 20px; width: 100%; font-size: 14px; transition: all 0.3s ease; resize: none; backdrop-filter: blur(5px); }
+        input:focus, textarea:focus { outline: none; border-color: var(--pop-color); background: rgba(0, 243, 255, 0.1) !important; box-shadow: 0 0 15px rgba(0, 243, 255, 0.2); }
+        
+        /* --- RETRO GRID BACKDROP --- */
+        .retro-wrapper {
+            position: relative;
+            background-color: #050505;
+            background-image: 
+                linear-gradient(rgba(0, 255, 255, 0.03) 1px, transparent 1px), 
+                linear-gradient(90deg, rgba(0, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            width: 100%;
+        }
+
+        /* --- BOTTOM NEON PULSE --- */
+        .floor-glow {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: var(--pop-color);
+            z-index: 20;
+            animation: floorPulse 4s infinite ease-in-out; 
+        }
+
+        @keyframes floorPulse {
+            0%, 100% { 
+                opacity: 0.4; 
+                box-shadow: 0 -10px 1000px 5px rgba(0, 243, 255, 0.3); 
+            }
+            50% { 
+                opacity: 0.8; 
+                box-shadow: 0 -30px 1800px 20px rgba(0, 243, 255, 0.9); 
+            }
+        }
+
+        /* --- GHOST SCRIPT (LEFT COLUMN ONLY) --- */
+/* --- GHOST SCRIPT (CENTERED + MASSIVE + BLURRY) --- */
+.script-overlay {
+display: none !important;
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    overflow: visible;
+    pointer-events: none;
+    z-index: 0;
+    
+    /* Centering the container */
+    display: flex;
+    justify-content: center; 
+    align-items: flex-start;
+    
+    /* Cinematic fade mask */
+    mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%);
+}
+
+.script-text {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 80px; /* HUGE SIZE */
+    font-weight: 800;
+    line-height: 1.1;
+    color: rgba(0, 243, 255, 0.15); /* Lower opacity because it's so big */
+    white-space: pre-wrap;
+    width: 90%; 
+    text-align: center; /* CENTERED TEXT */
+    height: auto;
+    
+    /* THE BLUR EFFECT */
+    filter: blur(8px); 
+    
+    padding-top: 10vh;
+    animation: scrollScript 120s linear infinite; /* Slower scroll for the big text */
+}
+
+/* Adjusting the scroll to handle the massive font size */
+@keyframes scrollScript {
+    0% { transform: translateY(10vh); }
+    100% { transform: translateY(-300%); } 
+}
+.archive-btn {
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    min-width: 400px; /* Ensures it feels substantial on desktop */
+}
+
+.archive-btn:hover {
+    transform: scale(1.02); /* Slight scale up */
+    background: rgba(0, 243, 255, 0.03); /* Faint blue glow inside */
+    box-shadow: 0 0 60px rgba(0, 243, 255, 0.15);
+}
+
+/* Make the scanline match the larger size */
+.archive-btn::after {
+    content: '';
+    position: absolute;
+    top: -100%;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom, transparent, rgba(0, 243, 255, 0.1), transparent);
+    pointer-events: none;
+}
+
+.archive-btn:hover::after {
+    animation: scanline 2s linear infinite;
+}
+
+@keyframes scanline {
+    0% { transform: translateY(-100%); }
+    100% { transform: translateY(200%); }
+}
+.archive-glow-zone {
+    position: relative;
+    overflow: hidden;
+}
+
+/* The Background Glow Bar */
+.archive-glow-zone::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 150%; /* Wider than the screen for a smooth bleed */
+    height: 100%;
+    background: radial-gradient(
+        ellipse at center, 
+        rgba(0, 243, 255, 0.08) 0%, 
+        rgba(0, 243, 255, 0.03) 40%, 
+        transparent 70%
+    );
+    opacity: 0;
+    transition: opacity 0.6s ease;
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Trigger glow on hover */
+.archive-glow-zone:hover::before {
+    opacity: 1;
+}
+
+/* Optional: Add a very thin top/bottom neon line to define the "bar" */
+.archive-glow-zone::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 10%;
+    right: 10%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(0, 243, 255, 0.2), transparent);
+    opacity: 0;
+    transition: opacity 0.6s ease;
+}
+
+.archive-glow-zone:hover::after {
+    opacity: 1;
+}
+function navigateTo(pageId) {
+    const loader = document.getElementById('loading-screen');
+    const bar = document.getElementById('boot-progress');
+    const status = document.getElementById('loading-status');
+    
+    // 1. Show Loading Screen
+    loader.classList.remove('pointer-events-none', 'opacity-0');
+    loader.classList.add('opacity-100');
+    
+    // 2. Animate Progress Bar
+    let progress = 0;
+    status.innerText = "Accessing encrypted sectors...";
+    
+    const interval = setInterval(() => {
+        progress += Math.random() * 30;
+        if (progress > 100) progress = 100;
+        bar.style.width = progress + "%";
+        
+        if (progress === 100) {
+            clearInterval(interval);
+            
+            // 3. Switch Pages
+            document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active-page'));
+            document.getElementById(pageId + '-page').classList.add('active-page');
+            window.scrollTo({top: 0, behavior: 'instant'});
+            
+            // 4. Hide Loading Screen
+            setTimeout(() => {
+                loader.classList.add('opacity-0');
+                setTimeout(() => {
+                    loader.classList.add('pointer-events-none');
+                    bar.style.width = "0%"; // Reset for next time
+                }, 700);
+            }, 500);
+        }
+    }, 100);
+}
+/* --- PLAY BUTTON PULSE --- */
+@keyframes buttonPulse {
+    0% { box-shadow: 0 0 0 0 rgba(0, 243, 255, 0.4); transform: translate(-50%, -50%) scale(1); }
+    70% { box-shadow: 0 0 0 20px rgba(0, 243, 255, 0); transform: translate(-50%, -50%) scale(1.05); }
+    100% { box-shadow: 0 0 0 0 rgba(0, 243, 255, 0); transform: translate(-50%, -50%) scale(1); }
+}
+
+.video-overlay-play {
+    position: absolute;
+    top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 85px; height: 85px;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(0, 243, 255, 0.3);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    z-index: 30; cursor: pointer; backdrop-filter: blur(4px);
+    animation: buttonPulse 2s infinite ease-in-out;
+    transition: all 0.3s ease;
+}
+
+.video-overlay-play:hover {
+    animation: none;
+    background: #00f3ff;
+    border-color: white;
+    transform: translate(-50%, -50%) scale(1.15);
+    box-shadow: 0 0 40px #00f3ff;
+}
+
+/* Hide the control bar initially */
+.video-controls.hidden-ui {
+    opacity: 0 !important;
+    pointer-events: none;
+}
+
+/* Initial dimmed state for the video */
+.scroll-video.dimmed {
+    filter: brightness(0.6) saturate(0.8);
+    transition: filter 0.5s ease;
+}
+video:fullscreen, video:-webkit-full-screen {
+    cursor: auto !important;
+}
+/* Filter Link Styling */
+.filter-link {
+    color: rgba(255, 255, 255, 0.3);
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+}
+
+.filter-link:hover, .filter-link.active-filter {
+    color: #00f3ff;
+    text-shadow: 0 0 15px rgba(0, 243, 255, 0.5);
+}
+
+.filter-link.active-filter::after {
+    content: '_';
+    position: absolute;
+    right: -15px;
+    animation: blink 1s steps(1) infinite;
+}
+
+@keyframes blink { 50% { opacity: 0; } }
+
+/* Project Card Glitch Effect */
+.project-card {
+    transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.project-card.hidden-asset {
+    opacity: 0;
+    transform: scale(0.95) translateY(20px);
+    pointer-events: none;
+    filter: blur(10px);
+}
+
+.glitch-active {
+    animation: cardGlitch 0.2s linear infinite;
+}
+
+@keyframes cardGlitch {
+    0% { transform: translate(0); }
+    20% { transform: translate(-2px, 2px); }
+    40% { transform: translate(-2px, -2px); }
+    60% { transform: translate(2px, 2px); }
+    80% { transform: translate(2px, -2px); }
+    100% { transform: translate(0); }
+}
+    </style>
+</head>
+<link rel="icon" type="image/png" href="favicon.ico">
+<meta property="og:title" content="Armand Slaton | 3D Generalist 2026">
+<meta property="og:description" content="3D Generalist & Motion Artist. Gnomon School of VFX. Jinx sculpture acquired by Riot Games.">
+<meta property="og:image" content="thumbnails/jinx.png">
+<meta property="og:type" content="website">
+<body id="body-wrapper">
+
+    <div id="cursor"></div>
+    <div id="cursor-dot"></div>
+    <div class="fixed inset-0 pointer-events-none z-[1] opacity-5 bg-[url('https://grainy-gradients.vercel.app/noise.svg')]"></div>
+
+    <div id="menu-overlay" onclick="toggleMenu()"></div>
+    <div id="side-menu">
+        <div class="close-menu-btn" onclick="toggleMenu()">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+        </div>
+        <div class="menu-link" onclick="navigateTo('home'); toggleMenu()">Home</div>
+        <div class="menu-link" onclick="navigateTo('projects'); toggleMenu()">Work</div>
+        <div class="menu-link" onclick="navigateTo('about'); toggleMenu()">About Me</div>
+        <div class="menu-link" onclick="navigateToContact()">Contact</div>
+<div class="mt-auto text-[10px] text-gray-600 uppercase tracking-widest leading-relaxed">Portfolio 2026<br>Armand Slaton</div>
+    </div>
+
+    <nav id="nav-bar" class="fixed w-full z-[60] flex justify-between items-center p-6 md:p-10 h-24">
+        <div class="flex items-center gap-8 h-full">
+            <div class="menu-btn cursor-pointer flex flex-col gap-2 justify-center" onclick="toggleMenu()"><div class="w-8 h-[2px] bg-white"></div><div class="w-8 h-[2px] bg-white"></div><div class="w-8 h-[2px] bg-white"></div></div>
+            <div onclick="navigateTo('home')" class="text-2xl font-bold tracking-tighter hero-font text-white uppercase cursor-pointer flex items-center leading-none">SLATON<span class="text-[#00f3ff]">.</span>28</div>
+        </div>
+        <div id="masked-header" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="cursor-pointer">
+            <div class="mask-container">
+                <svg class="mask-svg" viewBox="0 0 1000 120" preserveAspectRatio="xMaxYMid meet">
+                    <defs><mask id="textMask"><text x="99%" y="50%" text-anchor="end" alignment-baseline="central" class="hero-font" style="font-weight: 900; font-size: 85px; letter-spacing: -0.1em; fill: white;">ARMAND SLATON</text></mask></defs>
+                    <g class="masked-content">
+                        <foreignObject x="0" y="0" width="100%" height="100%"><video id="header-vid" autoplay muted loop playsinline style="width: 150%; height: 150%; object-fit: cover;"><source src="WebsiteMontage_small.mp4" type="video/mp4"></video></foreignObject>
+                        <rect x="0" y="0" width="100%" height="100%" fill="rgba(255, 255, 255, 0.3)" />
+                    </g>
+                </svg>
+            </div>
+        </div>
+    </nav>
+
+    <div id="home-page" class="page-section active-page">
+        
+        <section id="hero-trigger" class="relative h-screen w-full flex flex-col justify-center items-center overflow-hidden">
+            <div class="absolute inset-0 z-0">
+                <video id="video-backdrop" autoplay muted loop playsinline class="w-full h-full object-cover brightness-[0.4]" style="filter: saturate(0.5);">
+                    <source src="WebsiteMontage_small.mp4" type="video/mp4">
+                </video>
+                <div class="absolute inset-0 bg-gradient-to-b from-black/90 via-black/60 to-black opacity-100"></div>
+            </div>
+            <div class="z-10 text-center px-4">
+<p class="text-[12px] uppercase tracking-[0.7em] mb-8 text-[#00f3ff] opacity-80 animate-pulse font-bold">3D Generalist & Motion Artist</p>
+                <h1 class="text-5xl md:text-[130px] font-bold hero-font tracking-tighter leading-none mb-8 text-white uppercase drop-shadow-2xl">ARMAND<br><span class="text-transparent bg-clip-text bg-gradient-to-r from-gray-200 via-white to-gray-500">SLATON</span></h1>
+               <div class="flex flex-col md:flex-row justify-center items-center space-y-4 md:space-y-0 md:space-x-12 text-gray-300 font-bold uppercase tracking-[0.3em] text-[14px] md:text-[16px]">
+    <p class="hover:text-[#00f3ff] transition-colors">3D Modeling & Environments</p>
+    <div class="hidden md:block h-[2px] w-20 bg-gray-600"></div>
+    <p class="hover:text-[#00f3ff] transition-colors">Compositing & Motion Design</p>
+</div>
+
+<!-- WATCH REEL BUTTON -->
+<button onclick="playReel()" class="mt-12 flex items-center gap-4 mx-auto px-10 py-5 border border-[#00f3ff]/40 bg-black/30 backdrop-blur-sm hover:bg-[#00f3ff] hover:text-black hover:border-[#00f3ff] transition-all group">
+    <div class="w-10 h-10 rounded-full border border-[#00f3ff] group-hover:border-black flex items-center justify-center transition-all">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="text-[#00f3ff] group-hover:text-black transition-all ml-0.5"><path d="M8 5v14l11-7z"/></svg>
+    </div>
+    <span class="text-[#00f3ff] group-hover:text-black text-[13px] font-bold tracking-[0.4em] uppercase transition-all">Watch Reel</span>
+</button>
+            </div>
+        </section>
+
+        <section id="toolset">
+            <div class="text-center mb-6"><h3 class="hero-font text-3xl md:text-5xl text-white uppercase tracking-tighter">Toolset</h3></div>
+            <div class="vignette-left"></div><div class="vignette-right"></div>
+            <div class="toolset-track">
+                <script>
+                    const tools = `
+                    <a href="https://www.adobe.com/products/photoshop.html" target="_blank" class="tool-link"><img src="icons/photoshop.svg" class="tool-icon"></a>
+                    <a href="https://www.adobe.com/products/indesign.html" target="_blank" class="tool-link"><img src="icons/indesign.svg" class="tool-icon"></a>
+                    <a href="https://www.autodesk.com/products/maya/overview" target="_blank" class="tool-link"><img src="icons/maya.svg" class="tool-icon"></a>
+                    <a href="https://www.unrealengine.com/" target="_blank" class="tool-link"><img src="icons/unreal.svg" class="tool-icon"></a>
+                    <a href="https://www.blender.org/" target="_blank" class="tool-link"><img src="icons/blender.svg" class="tool-icon"></a>
+                    <a href="https://www.adobe.com/products/aftereffects.html" target="_blank" class="tool-link"><img src="icons/aftereffects.svg" class="tool-icon"></a>
+                    `;
+                    for(let i=0; i<10; i++) document.write(tools);
+                </script>
+            </div>
+        </section>
+
+       <section id="featured" class="w-full bg-[#050505] border-b border-white/5 relative z-10">
+    <div class="px-6 md:px-12 py-20 text-center">
+        <h2 class="hero-font text-3xl md:text-6xl text-white uppercase tracking-tighter neon-text mb-4">Featured Projects</h2>
+        <div class="w-20 h-1 bg-[#00f3ff] mx-auto"></div>
+    </div>
+
+    <div class="flex flex-col gap-10 px-4 md:px-12 pb-0">
+
+        <!-- PROJECT 01: JINX -->
+        <div class="project-stack-item w-full h-auto lg:h-[700px] border border-white/10 bg-black flex flex-col lg:flex-row group hover:border-[#00f3ff] transition-all duration-500 overflow-hidden">
+            <div class="w-full lg:w-3/4 h-[400px] lg:h-full relative bg-[#050505]">
+                <div class="custom-video-wrapper w-full h-full relative group">
+                    <div class="video-overlay-play" onclick="enterCinematicView('vid-3')">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg>
+                    </div>
+                    <video id="vid-3" src="jinx sculpture presentation.mp4" 
+                           class="scroll-video dimmed w-full h-full object-contain cursor-pointer" 
+                           loop playsinline muted onclick="handleVideoClick('vid-3')"></video>
+                    <div class="video-controls hidden-ui">
+                        <button class="control-btn" onclick="toggleVideo('vid-3')">►</button> 
+                        <button class="control-btn" onclick="openFullscreen('vid-3')">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
+                        </button>
+                        <input type="range" class="progress-bar flex-grow" value="0" min="0" max="100" oninput="seekVideo('vid-3', this.value)">
+                        <div class="hidden md:flex items-center gap-2 ml-4">
+                            <span class="text-[10px] text-gray-400 font-bold">VOL</span>
+                            <input type="range" class="w-16 h-1 bg-gray-700 appearance-none rounded-lg cursor-pointer" oninput="setVolume('vid-3', this.value)" min="0" max="1" step="0.1" value="1">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="w-full lg:w-1/4 p-8 lg:p-12 flex flex-col justify-center bg-[#080808] border-l border-white/5">
+                <div class="text-[#00f3ff] text-xs tracking-[0.2em] font-bold mb-4 uppercase">Project_01</div>
+                <h3 class="text-3xl lg:text-4xl text-white hero-font uppercase mb-6 leading-none">Jinx Sculpture</h3>
+                <a href="https://www.arcane.com/en-us/" target="_blank" class="mb-6 px-5 py-3 border border-[#00f3ff]/30 bg-[#00f3ff]/10 hover:bg-[#00f3ff]/30 transition-all text-center no-underline inline-block">
+                    <span class="text-[#00f3ff] text-[14px] tracking-widest font-bold uppercase">Acquired by Riot Games</span>
+                </a>
+                <p class="text-gray-400 text-sm leading-relaxed mb-8 border-l-2 border-white/20 pl-4">
+                    My very first sculpture, completed in a 10 week term at Gnomon. The boots alone took a week and a half to capture every hidden detail: individual laces, each fold, the damage and wear. The braids aren't even clay, they're strips of Worbla heated, braided, and painted. Riot Games reached out after the term ended and purchased it for permanent display on their campus.
+					<br><br>
+                    <span class="text-gray-500 text-xs">Tools: Plastalina Clay</span>                
+				</p>
+                <div class="mt-auto pt-6 border-t border-white/10 text-[10px] text-gray-500 font-mono">STATUS: ACQUIRED<br>TYPE: SCULPTURE</div>
+            </div>
+        </div>
+
+        <!-- PROJECT 02: NICKELODEON -->
+        <div class="project-stack-item w-full h-auto lg:h-[700px] border border-white/10 bg-black flex flex-col lg:flex-row group hover:border-[#00f3ff] transition-all duration-500 overflow-hidden">
+            <div class="w-full lg:w-3/4 h-[400px] lg:h-full relative bg-[#050505]">
+                <div class="custom-video-wrapper w-full h-full relative group">
+                    <div class="video-overlay-play" onclick="enterCinematicView('vid-2')">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg>
+                    </div>
+                    <video id="vid-2" src="ArmandSlaton_IntroToComp_ConceptNickelodeon.mp4" 
+                           class="scroll-video dimmed w-full h-full object-contain cursor-pointer" 
+                           loop playsinline muted onclick="handleVideoClick('vid-2')"></video>
+                    <div class="video-controls hidden-ui">
+                        <button class="control-btn" onclick="toggleVideo('vid-2')">►</button> 
+                        <button class="control-btn" onclick="openFullscreen('vid-2')">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
+                        </button>
+                        <input type="range" class="progress-bar flex-grow" value="0" min="0" max="100" oninput="seekVideo('vid-2', this.value)">
+                        <div class="hidden md:flex items-center gap-2 ml-4">
+                            <span class="text-[10px] text-gray-400 font-bold">VOL</span>
+                            <input type="range" class="w-16 h-1 bg-gray-700 appearance-none rounded-lg cursor-pointer" oninput="setVolume('vid-2', this.value)" min="0" max="1" step="0.1" value="1">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="w-full lg:w-1/4 p-8 lg:p-12 flex flex-col justify-center bg-[#080808] border-l border-white/5">
+                <div class="text-[#00f3ff] text-xs tracking-[0.2em] font-bold mb-4 uppercase">Project_02</div>
+                <h3 class="text-3xl lg:text-4xl text-white hero-font uppercase mb-6 leading-none">Nickelodeon</h3>
+                <p class="text-gray-400 text-sm leading-relaxed mb-8 border-l-2 border-white/20 pl-4">
+                    An alternate universe where Gnomon has Nickelodeon's style. The assignment was open ended: just prove you understand After Effects. The minimum was 10 seconds. When I presented it, the whole class clapped and my teacher told me after class that I was the first student he'd ever recommended submit their final for best of term.
+                    <br><br>
+                    <span class="text-gray-500 text-xs">Tools: After Effects, Photoshop</span>
+                </p>
+                <div class="mt-auto pt-6 border-t border-white/10 text-[10px] text-gray-500 font-mono">STATUS: AIRED<br>TYPE: BROADCAST</div>
+            </div>
+        </div>
+
+        <!-- PROJECT 03: SUPER BOWL -->
+        <div class="project-stack-item w-full h-auto lg:h-[700px] border border-white/10 bg-black flex flex-col lg:flex-row group hover:border-[#00f3ff] transition-all duration-500 overflow-hidden">
+            <div class="w-full lg:w-3/4 h-[400px] lg:h-full relative bg-[#050505]">
+                <div class="custom-video-wrapper w-full h-full relative group">
+                    <div class="video-overlay-play" onclick="enterCinematicView('vid-1')">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg>
+                    </div>
+                    <video id="vid-1" src="The Queen's Gambit SuperBowl Commercial.mp4" 
+                           class="scroll-video dimmed w-full h-full object-contain cursor-pointer" 
+                           loop playsinline muted onclick="handleVideoClick('vid-1')"></video>
+                    <div class="video-controls hidden-ui">
+                        <button class="control-btn" onclick="toggleVideo('vid-1')">►</button> 
+                        <button class="control-btn" onclick="openFullscreen('vid-1')">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
+                        </button>
+                        <input type="range" class="progress-bar flex-grow" value="0" min="0" max="100" oninput="seekVideo('vid-1', this.value)">
+                        <div class="hidden md:flex items-center gap-2 ml-4">
+                            <span class="text-[10px] text-gray-400 font-bold">VOL</span>
+                            <input type="range" class="w-16 h-1 bg-gray-700 appearance-none rounded-lg cursor-pointer" oninput="setVolume('vid-1', this.value)" min="0" max="1" step="0.1" value="1">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="w-full lg:w-1/4 p-8 lg:p-12 flex flex-col justify-center bg-[#080808] border-l border-white/5">
+                <div class="text-[#00f3ff] text-xs tracking-[0.2em] font-bold mb-4 uppercase">Project_03</div>
+                <h3 class="text-3xl lg:text-4xl text-white hero-font uppercase mb-6 leading-none">Super Bowl X Netflix Pitch</h3>
+                <p class="text-gray-400 text-sm leading-relaxed mb-8 border-l-2 border-white/20 pl-4">
+                    My first animatic ever. The assignment was to create a Super Bowl commercial with a product and a celebrity, but I asked if I could make a commercial for the Super Bowl instead. So I pitched a Netflix sponsorship for Super Bowl LIX featuring The Queen's Gambit. The funny thing is I don't watch football and I've never seen the show. It was just the first thing that came to mind and I rolled with it. The animatic follows the actual order of a football game and a chess match side by side, which is one of my favorite details. Everything was hand drawn in Photoshop and animated in After Effects.
+                 <br><br>
+                    <span class="text-gray-500 text-xs">Tools: After Effects, Mixed Media, Photoshop</span>
+				</p>
+                <div class="mt-auto pt-6 border-t border-white/10 text-[10px] text-gray-500 font-mono">STATUS: COMPLETED<br>TYPE: ANIMATIC</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="archive-glow-zone flex justify-center mt-10 pb-200 w-full relative transition-all duration-700">
+        <button onclick="navigateTo('projects')" class="archive-btn group relative px-20 py-10 bg-transparent overflow-hidden z-10">
+            <div class="absolute inset-0 border-2 border-white/20 transition-all duration-300 group-hover:border-[#00f3ff]/50"></div>
+            <div class="absolute inset-[8px] border border-white/5 transition-all duration-300 group-hover:border-[#00f3ff]/20"></div>
+            <div class="relative flex flex-col items-center gap-4">
+                <span class="hero-font text-xl md:text-2xl tracking-[0.6em] text-white group-hover:text-[#00f3ff] transition-colors">VIEW FULL ARCHIVE</span>
+                <div class="flex items-center gap-6">
+                    <div class="w-12 h-[1px] bg-gray-600 group-hover:bg-[#00f3ff] transition-all"></div>
+<span class="text-[12px] font-mono tracking-[0.4em] text-gray-500 group-hover:text-[#00f3ff]">ALL PROJECTS</span>
+                    <div class="w-12 h-[1px] bg-gray-600 group-hover:bg-[#00f3ff] transition-all"></div>
+                </div>
+            </div>
+            <div class="absolute top-0 left-0 w-6 h-6 border-t-4 border-l-4 border-[#00f3ff] opacity-0 group-hover:opacity-100 transition-all"></div>
+            <div class="absolute bottom-0 right-0 w-6 h-6 border-b-4 border-r-4 border-[#00f3ff] opacity-0 group-hover:opacity-100 transition-all"></div>
+        </button>
+    </div>
+</section>
+
+        <div class="retro-wrapper border-t border-white/5 relative">
+            
+            <section id="achievements" class="px-6 md:px-20 pt-20 pb-40 relative z-10 overflow-visible">
+                
+                <div class="script-overlay">
+                    <div id="ghost-script-left" class="script-text"></div>
+                </div>
+
+                <div class="max-w-[1400px] mx-auto relative z-10">
+                    
+                    <h2 class="hero-font text-3xl md:text-5xl text-white mb-16 uppercase tracking-tighter text-center">
+    Achievements
+</h2>
+                    
+                    <div class="holo-deck">
+                        
+                        <div class="holo-panel relative group" onclick="toggleHolo(this)" style="background: black;">
+                            <div class="absolute inset-0 z-0 opacity-60 group-hover:opacity-100 transition-opacity duration-700" style="background-image: url('gnomonpromo.png'); background-size: cover; background-position: center;"></div>
+                            <div class="absolute inset-0 z-0 bg-gradient-to-t from-black via-black/80 to-transparent"></div>
+                            <div class="status-indicator z-20"></div>
+                            <div class="bg-number z-10" style="mix-blend-mode: normal; color: rgba(255,255,255,0.4);">01</div>
+                            <div class="panel-content-wrapper z-20">
+                                <div class="panel-category">EDUCATION</div>
+                                <h3 class="panel-title">GNOMON<br>ACCEPTANCE</h3>
+                                <div class="panel-details">
+                                    <p class="detail-text">
+Admitted through competitive portfolio submission. Currently training under industry professionals.</p>
+<a href="https://www.gnomon.edu/" target="_blank" class="panel-link">VISIT GNOMON</a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="holo-panel relative group" onclick="toggleHolo(this)" style="background: black;">
+                            <div class="absolute inset-0 z-0 opacity-60 group-hover:opacity-100 transition-opacity duration-700" style="background-image: url('FestivalStage.png'); background-size: cover; background-position: center;"></div>
+                            <div class="absolute inset-0 z-0 bg-gradient-to-t from-black via-black/80 to-transparent"></div>
+                            <div class="status-indicator z-20"></div>
+                            <div class="bg-number z-10" style="mix-blend-mode: screen; color: rgba(255,255,255,0.3);">02</div>
+                            <div class="panel-content-wrapper z-20">
+                                <div class="panel-category">AWARDS</div>
+                                <h3 class="panel-title">FILM FESTIVAL<br>WINNER</h3>
+                                <div class="panel-details">
+                                    <p class="detail-text">
+19 minute short film. Standing ovation. Best of Show at the Hart District Film Festival.</i></p>
+                                    <a href="https://signalscv.com/2024/03/hart-district-film-festival-draws-diverse-lineup/" target="_blank" class="panel-link">READ ARTICLE</a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="holo-panel relative group" onclick="toggleHolo(this)" style="background: black;">
+                            <div class="absolute inset-0 z-0 opacity-60 group-hover:opacity-100 transition-opacity duration-700" style="background-image: url('thumbnails/jinx_achieve.png'); background-size: cover; background-position: center;"></div>
+                            <div class="absolute inset-0 z-0 bg-gradient-to-t from-black via-black/80 to-transparent"></div>
+                            <div class="status-indicator z-20"></div>
+                            <div class="bg-number z-10" style="mix-blend-mode: screen; color: rgba(255,255,255,0.5);">03</div>
+                            <div class="panel-content-wrapper z-20">
+                                <div class="panel-category">ACQUISITION</div>
+                                <h3 class="panel-title">RIOT<br>GAMES</h3>
+                                <div class="panel-details">
+                                    <p class="detail-text">
+First sculpture ever. Purchased by Riot Games for permanent display on their campus.</p>
+                                    <a href="https://www.arcane.com/en-us/" target="_blank" class="panel-link">VIEW ARCANE</a>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+            <section id="contact" class="px-6 md:px-20 pb-[120px] relative z-10">
+                <div class="max-w-7xl mx-auto">
+                    <h2 class="hero-font contact-header text-center md:text-left text-white text-5xl mb-12 uppercase tracking-tighter">Contact Me</h2>
+                    <div class="contact-layout">
+                        <div class="identity-group">
+                            <div class="photo-outer-wrapper max-w-full">
+                                <div class="photo-frame"><img src="You_found_me again!.png" alt="Armand Slaton" class="img-bw"><img src="You_found_me!.png" alt="Armand Slaton" class="img-color"></div>
+                                <div class="whimsical-arrow hidden md:flex"><img src="icons/arrow.svg" class="arrow-icon" alt="arrow"><div class="whimsical-text">That's me!</div></div>
+                            </div>
+                            <div class="social-column">
+                                <a href="https://instagram.com/armandsslaton" target="_blank" class="social-item group">
+    <div class="social-icon-wrapper" style="min-width: 50px; flex-shrink: 0;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="w-[50px] h-[50px] transition-all duration-300">
+            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+        </svg>
+    </div>
+    <div class="social-text-wrapper">
+        <span class="social-text">Instagram</span>
+        <span class="social-handle">@armandsslaton</span>
+    </div>
+</a>
+                                <a href="https://www.linkedin.com/in/armand-slaton-696304281" target="_blank" class="social-item group">
+                                    <div class="social-icon-wrapper" style="min-width: 50px; flex-shrink: 0;">
+                                        <svg viewBox="0 0 24 24" fill="currentColor" width="50" height="50"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+                                    </div>
+                                    <div class="social-text-wrapper"><span class="social-text">LinkedIn</span><span class="social-handle">Armand Slaton</span></div>
+                                </a>
+                                <div class="bio-btn" onclick="navigateTo('about')">
+                                    <div class="bio-text-group"><span class="bio-label">PERSONNEL FILE</span><span class="bio-main">ACCESS BIO_DATA</span></div>
+                                    <div class="bio-icon">►</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-container">
+                            <form action="https://formspree.io/f/xjgeblgq" method="POST" class="space-y-6 w-full">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4"><input type="text" name="first_name" placeholder="FIRST NAME" required><input type="text" name="last_name" placeholder="LAST NAME" required></div>
+                                <input type="email" name="_replyto" placeholder="YOUR EMAIL" required><input type="text" name="subject" placeholder="SUBJECT" required>
+                                <div class="relative"><textarea name="message" id="message" rows="8" maxlength="600" placeholder="MESSAGE" required oninput="countChars()"></textarea><div class="absolute bottom-2 right-2 text-[10px] text-gray-500 tracking-widest"><span id="count">600</span></div></div>
+                                <button type="submit" class="w-full py-5 border border-white text-white font-bold text-[14px] tracking-[0.5em] uppercase hover:bg-white hover:text-black transition-all">SEND EMAIL</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <div class="floor-glow"></div>
+        </div>
+        <footer class="py-4 text-center text-[10px] text-gray-600 uppercase tracking-widest bg-black border-t border-white/5">2026 Armand Slaton</footer>
+    </div>
+	
+    <div id="projects-page" class="page-section bg-[#050505] relative overflow-hidden">
+    <div class="max-w-[1600px] mx-auto px-6 md:px-12 relative z-10 pt-16">
+        <div class="mb-16 border-b border-white/10 pb-8">
+            <div class="flex flex-col md:flex-row justify-between items-end gap-6">
+                <div class="w-full">
+<div class="text-[#00f3ff] text-[10px] font-mono tracking-[0.4em] mb-4 uppercase animate-pulse">PROJECT ARCHIVE</div>
+                    <nav class="flex flex-wrap items-center gap-4 hero-font text-white text-lg md:text-2xl uppercase tracking-tighter">
+    <button onclick="filterProjects('all')" class="filter-link active-filter">ALL</button>
+    <span class="text-white/20">/</span>
+    <button onclick="filterProjects('3d')" class="filter-link">3D & ENVIRONMENTS</button>
+    <span class="text-white/20">/</span>
+    <button onclick="filterProjects('motion')" class="filter-link">MOTION & EDITING</button>
+    <span class="text-white/20">/</span>
+    <button onclick="filterProjects('digital')" class="filter-link">DIGITAL ART</button>
+    <span class="text-white/20">/</span>
+    <button onclick="filterProjects('traditional')" class="filter-link">TRADITIONAL</button>
+</nav>
+                </div>
+            </div>
+        </div>
+
+        <div id="project-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 pb-40">
+
+    <!-- ROW 1: JINX - Full Width Hero -->
+    <div class="project-card traditional group relative bg-black border border-white/10 overflow-hidden cursor-pointer lg:col-span-6 h-[300px] lg:h-[500px]" data-span="6" onclick="openAsset('archive-jinx')">
+        <img src="thumbnails/jinx_moved.png" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+        <div class="absolute inset-0 bg-gradient-to-r from-black/90 via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 p-8 lg:p-12 flex flex-col justify-end">
+            <div class="text-[#00f3ff] text-[10px] font-mono mb-2 uppercase tracking-widest">STATUS: ACQUIRED BY RIOT GAMES</div>
+            <h4 class="hero-font text-white text-2xl lg:text-4xl uppercase mb-2">Jinx Sculpture</h4>
+            <p class="text-gray-300 text-sm max-w-lg">First sculpture ever. Acquired by Riot Games for permanent display on campus.</p>
+        </div>
+    </div>
+
+    <!-- ROW 2: NICK + SHORT FILM -->
+    <div class="project-card motion group relative bg-black border border-white/10 overflow-hidden cursor-pointer lg:col-span-3 h-[280px] lg:h-[400px]" data-span="3" onclick="openAsset('archive-nick')">
+        <img src="thumbnails/nickelodeon.png" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+        <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 p-8 flex flex-col justify-end">
+            <div class="text-[#00f3ff] text-[10px] font-mono mb-2 uppercase">TYPE: BROADCAST COMPOSITING</div>
+            <h4 class="hero-font text-white text-xl lg:text-2xl uppercase mb-2">Nickelodeon Rebrand</h4>
+            <p class="text-gray-300 text-xs max-w-md">Open ended After Effects final. Teacher's first ever recommendation for best of term submission.</p>
+        </div>
+    </div>
+
+    <div class="project-card motion group relative bg-black border border-white/10 overflow-hidden cursor-pointer lg:col-span-3 h-[280px] lg:h-[400px]" data-span="3" onclick="openAsset('shortfilm')">
+        <img src="thumbnails/film.jpg" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+        <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 p-8 flex flex-col justify-end">
+            <div class="text-[#00f3ff] text-[10px] font-mono mb-2 uppercase">AWARD: BEST OF SHOW</div>
+            <h4 class="hero-font text-white text-xl lg:text-2xl uppercase mb-2">You're Not Alone</h4>
+            <p class="text-gray-300 text-xs max-w-md">19 minute short film. Standing ovation. Best of Show. Written, directed, and produced in two weeks.</p>
+        </div>
+    </div>
+
+    <!-- ROW 3: UNREAL - Full Width Hero -->
+    <div class="project-card 3d group relative bg-black border border-white/10 overflow-hidden cursor-pointer lg:col-span-6 h-[300px] lg:h-[500px]" data-span="6" onclick="openAsset('unreal')">
+        <img src="thumbnails/unreal.png" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+        <div class="absolute inset-0 bg-gradient-to-r from-black/90 via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 p-8 lg:p-12 flex flex-col justify-end">
+            <div class="text-[#00f3ff] text-[10px] font-mono mb-2 uppercase tracking-widest">TYPE: UNREAL ENGINE ENVIRONMENT</div>
+            <h4 class="hero-font text-white text-2xl lg:text-4xl uppercase mb-2">Modular Subway</h4>
+            <p class="text-gray-300 text-sm max-w-lg">14 modular props, fully textured. First time in Unreal Engine. Inspired by Dave Merritt's Batman: Caped Crusader concept art.</p>
+        </div>
+    </div>
+
+    <!-- ROW 4: SUPER BOWL + TOASTER -->
+    <div class="project-card motion group relative bg-black border border-white/10 overflow-hidden cursor-pointer lg:col-span-3 h-[250px] lg:h-[350px]" data-span="3" onclick="openAsset('superbowl')">
+        <img src="thumbnails/superbowl.png" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+        <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 p-6 flex flex-col justify-end">
+            <div class="text-[#00f3ff] text-[10px] font-mono mb-2 uppercase">TYPE: ANIMATIC</div>
+            <h4 class="hero-font text-white text-xl uppercase mb-1">Super Bowl Pitch</h4>
+            <p class="text-gray-400 text-[10px] mt-1">First animatic ever. Netflix sponsorship for Super Bowl LIX. Hand drawn in Photoshop, animated in After Effects.</p>
+        </div>
+    </div>
+
+    <div class="project-card digital group relative bg-black border border-white/10 overflow-hidden cursor-pointer lg:col-span-3 h-[250px] lg:h-[350px]" data-span="3" onclick="openAsset('factory')">
+        <img src="thumbnails/toaster.png" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+        <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 p-6 flex flex-col justify-end">
+            <div class="text-[#00f3ff] text-[10px] font-mono mb-2 uppercase">TYPE: PHOTO BASH</div>
+            <h4 class="hero-font text-white text-xl uppercase mb-1">Toaster Factory</h4>
+            <p class="text-gray-400 text-[10px] mt-1">
+First concept art piece. Looked inside my toaster and saw a factory. Blocked out in Blender, photo bashed in Photoshop.</p>
+        </div>
+    </div>
+
+    <!-- ROW 5: CLOCK + MAILROOM -->
+    <div class="project-card 3d group relative bg-black border border-white/10 overflow-hidden cursor-pointer lg:col-span-3 h-[250px] lg:h-[350px]" data-span="3" onclick="openAsset('archive-clock')">
+        <img src="thumbnails/clock.png" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+        <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 p-6 flex flex-col justify-end">
+            <div class="text-[#00f3ff] text-[10px] font-mono mb-2 uppercase">TYPE: MODEL ASSET</div>
+            <h4 class="hero-font text-white text-xl uppercase mb-1">The Stopwatch</h4>
+            <p class="text-gray-400 text-[10px] mt-1">Key piece in my Gnomon application reel. A Sony recruiter thought it was a graduate's work.</p>
+        </div>
+    </div>
+
+    <div class="project-card 3d group relative bg-black border border-white/10 overflow-hidden cursor-pointer lg:col-span-3 h-[250px] lg:h-[350px]" data-span="3" onclick="openAsset('mailroom')">
+        <img src="thumbnails/mailroom.png" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+        <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 p-6 flex flex-col justify-end">
+            <div class="text-[#00f3ff] text-[10px] font-mono mb-2 uppercase">TYPE: ENV DESIGN</div>
+            <h4 class="hero-font text-white text-xl uppercase mb-1">The Mailroom</h4>
+            <p class="text-gray-400 text-[10px] mt-1">
+Wes Anderson inspired mailroom. Multiple color palettes from the book 'Accidentally Wes Anderson.'</p>
+        </div>
+    </div>
+
+    <!-- ROW 6: SEVERANCE + GNOMON REEL -->
+    <div class="project-card motion group relative bg-black border border-white/10 overflow-hidden cursor-pointer lg:col-span-2 h-[250px] lg:h-[350px]" data-span="2" onclick="openAsset('archive-sev')">
+        <img src="thumbnails/severance.png" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+        <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 p-6 flex flex-col justify-end">
+            <div class="text-[#00f3ff] text-[10px] font-mono mb-2 uppercase">TYPE: TRAILER</div>
+            <h4 class="hero-font text-white text-xl uppercase">Severance Edit</h4>
+			<p class="text-gray-400 text-[10px] mt-1">Fan trailer collab with @refined_severance. Horizontal and vertical versions. All After Effects.'</p>
+        </div>
+    </div>
+
+    <div class="project-card motion group relative bg-black border border-white/10 overflow-hidden cursor-pointer lg:col-span-4 h-[250px] lg:h-[350px]" data-span="4" onclick="openAsset('gnomon-app')">
+        <img src="thumbnails/application.png" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+        <div class="absolute inset-0 bg-gradient-to-r from-black/90 via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 p-8 flex flex-col justify-end">
+            <div class="text-[#00f3ff] text-[10px] font-mono mb-2 uppercase tracking-widest">TYPE: DEMO REEL</div>
+            <h4 class="hero-font text-white text-2xl uppercase mb-2">Gnomon Application Reel</h4>
+            <p class="text-gray-300 text-sm max-w-lg">6 minute reel edited to match Gnomon's official student reel style. It got me in.</p>
+        </div>
+    </div>
+
+    <!-- ROW 7: THREE EQUAL CARDS -->
+    <div class="project-card digital group relative bg-black border border-white/10 overflow-hidden cursor-pointer lg:col-span-2 h-[250px]" data-span="2" onclick="openAsset('wallpapers')">
+        <img src="thumbnails/arcane.png" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+        <div class="absolute inset-0 bg-black/80 opacity-0 group-hover:opacity-100 transition-opacity p-6 flex flex-col justify-end">
+            <div class="text-[#00f3ff] text-[10px] font-mono mb-2 uppercase">TYPE: BRAND STUDY</div>
+            <h4 class="hero-font text-white text-lg uppercase">Alt Gnomon Logos</h4>
+            <p class="text-gray-400 text-[10px] mt-1">30+ brand recreations rebuilt with the word 'Gnomon.' Netflix, Marvel, Arcane, and counting.</p>
+        </div>
+    </div>
+
+    <div class="project-card 3d group relative bg-black border border-white/10 overflow-hidden cursor-pointer lg:col-span-2 h-[250px]" data-span="2" onclick="openAsset('iphone')">
+        <img src="thumbnails/iphone.png" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+        <div class="absolute inset-0 bg-black/80 opacity-0 group-hover:opacity-100 transition-opacity p-6 flex flex-col justify-end">
+            <div class="text-[#00f3ff] text-[10px] font-mono mb-2 uppercase">TYPE: PRODUCT VIZ</div>
+            <h4 class="hero-font text-white text-lg uppercase">Iphone 3D</h4>
+<p class="text-gray-400 text-[10px] mt-1">Hard surface modeling practice. Originally had a ridiculous amount of cameras on the back as a joke.</p>
+        </div>
+    </div>
+
+    <div class="project-card motion group relative bg-black border border-white/10 overflow-hidden cursor-pointer lg:col-span-2 h-[250px]" data-span="2" onclick="openAsset('archive-head')">
+        <img src="thumbnails/jbl.png" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+        <div class="absolute inset-0 bg-black/80 opacity-0 group-hover:opacity-100 transition-opacity p-6 flex flex-col justify-end">
+            <div class="text-[#00f3ff] text-[10px] font-mono mb-2 uppercase">TYPE: AD VIZ</div>
+            <h4 class="hero-font text-white text-lg uppercase">Headphones Pitch</h4>
+			<p class="text-gray-400 text-[10px] mt-1">JBL product commercial. First time using the graph editor for complex camera animation.</p>
+        </div>
+    </div>
+
+</div>
+
+
+</div>
+
+</div>
+    </div>
+</div>
+    <div id="about-page" class="page-section">
+
+    <!-- BIO HERO -->
+    <section class="px-6 md:px-20 pb-20 pt-20 relative">
+        <div class="max-w-[1400px] mx-auto">
+            <div class="flex flex-col lg:flex-row gap-16 items-center lg:items-start">
+
+                <!-- Photo Side -->
+                <div class="w-[300px] lg:w-[400px] shrink-0">
+                    <div class="relative">
+                        <div class="w-full aspect-[3/4] overflow-hidden border border-white/10">
+                            <img src="You_found_me!.png" alt="Armand Slaton" class="w-full h-full object-cover object-top">
+                        </div>
+                        <div class="absolute -bottom-4 -right-4 w-full h-full border border-[#00f3ff]/20 -z-10"></div>
+                    </div>
+                    
+                </div>
+
+                <!-- Bio Text Side -->
+                <div class="flex-grow">
+                    <div class="text-[#00f3ff] text-[10px] font-mono tracking-[0.4em] mb-4 uppercase animate-pulse">Personnel File</div>
+                    <h1 class="hero-font text-4xl lg:text-6xl text-white uppercase tracking-tighter mb-2">Armand Slaton</h1>
+                    <p class="text-[#00f3ff] text-sm font-mono tracking-widest uppercase mb-10">3D Generalist & Motion Artist</p>
+
+                    <div class="space-y-6 text-gray-400 text-[15px] leading-relaxed max-w-2xl">
+                        <p>
+                           
+I'm a 3D Generalist currently studying at Gnomon School of VFX and working as a Production Assistant at Statik Creative. My very first sculpture, a character study of Jinx from Arcane, was acquired by Riot Games. First one I ever made. I didn't even win best of term for it, but apparently the right people were watching.
+                        </p>
+                        <p>
+                            I wouldn't exactly say I followed a typical path into this industry. At 16, I walked into Lightbox Expo alone with no connections and talked my way into a conversation with Sony recruiters. I've always believed that if you show up and put yourself in the room, the work will speak for itself.
+                        </p>
+                        <p>
+                            I've assisted on commercial photography shoots at Statik Creative, handling equipment and on set logistics. At school, I contributed to yearbook publishing, where not a single photo or word could afford to be out of place. That same discipline drives how I name files, structure projects, and hand off assets.
+                        </p>
+                        <p>
+                            I approach every project like it's going to be seen by the studio I want to work for, because now it is. I want to make work that inspires people the same way the work I admire has inspired me. Whether I'm building environments in Unreal, compositing in After Effects, or sculpting by hand, the standard is always: give it everything.
+                        </p>
+                    </div>
+
+                    <!-- Quick Stats -->
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mt-12 pt-8 border-t border-white/10">
+                        <div>
+                            <div class="text-[#00f3ff] hero-font text-2xl font-bold">01</div>
+                            <div class="text-gray-500 text-[10px] font-mono uppercase tracking-widest mt-1">Studio Acquisition</div>
+                        </div>
+                        <div>
+                            <div class="text-[#00f3ff] hero-font text-2xl font-bold">01</div>
+                            <div class="text-gray-500 text-[10px] font-mono uppercase tracking-widest mt-1">Film Festival Win</div>
+                        </div>
+                        <div>
+                            <div class="text-[#00f3ff] hero-font text-2xl font-bold">10+</div>
+                            <div class="text-gray-500 text-[10px] font-mono uppercase tracking-widest mt-1">Portfolio Projects</div>
+                        </div>
+                        <div>
+                            <div class="text-[#00f3ff] hero-font text-2xl font-bold">6+</div>
+                            <div class="text-gray-500 text-[10px] font-mono uppercase tracking-widest mt-1">Production Tools</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TIMELINE -->
+    <section class="px-6 md:px-20 py-20 relative border-t border-white/5">
+        <div class="max-w-[1400px] mx-auto">
+            <h2 class="hero-font text-3xl md:text-4xl text-white uppercase tracking-tighter mb-16 text-center">The Journey</h2>
+
+            <div class="relative">
+                <!-- Vertical Line -->
+                <div class="absolute left-6 lg:left-1/2 top-0 bottom-0 w-[1px] bg-white/10 lg:-translate-x-[0.5px]"></div>
+
+                <!-- Entry 1: Summer Camp -->
+                <div class="relative flex flex-col lg:flex-row items-start lg:items-center mb-16 pl-16 lg:pl-0">
+                    <div class="absolute left-4 lg:left-1/2 w-4 h-4 bg-[#00f3ff] rounded-full -translate-x-1/2 shadow-[0_0_15px_rgba(0,243,255,0.5)]"></div>
+                    <div class="lg:w-1/2 lg:pr-16 lg:text-right">
+                        <div class="text-[#00f3ff] text-[10px] font-mono tracking-widest uppercase mb-2">2023</div>
+                        <h3 class="hero-font text-xl text-white uppercase mb-2">Gnomon Summer Camp</h3>
+                        <p class="text-gray-400 text-sm leading-relaxed">First exposure to professional level VFX training. Took the Gnomon summer program and knew immediately this was the path.</p>
+                    </div>
+                    <div class="lg:w-1/2 lg:pl-16"></div>
+                </div>
+
+                <!-- Entry 2: Lightbox 2023 -->
+                <div class="relative flex flex-col lg:flex-row items-start lg:items-center mb-16 pl-16 lg:pl-0">
+                    <div class="absolute left-4 lg:left-1/2 w-4 h-4 bg-[#00f3ff] rounded-full -translate-x-1/2 shadow-[0_0_15px_rgba(0,243,255,0.5)]"></div>
+                    <div class="lg:w-1/2 lg:pr-16"></div>
+                    <div class="lg:w-1/2 lg:pl-16">
+                        <div class="text-[#00f3ff] text-[10px] font-mono tracking-widest uppercase mb-2">2023</div>
+                        <h3 class="hero-font text-xl text-white uppercase mb-2">Lightbox Expo — Age 16</h3>
+                        <p class="text-gray-400 text-sm leading-relaxed">Attended Lightbox Expo alone at 16 with one goal: meet Sony. Followed a gut feeling to switch lines and ended up in a conversation with Chris Leahy, executive director of global talent acquisition at Sony Pictures Animation, who introduced me to her colleague at DreamWorks and took me backstage after the Spider Verse panel to meet Patrick O'Keefe and Mike Lasker.</p>
+                    </div>
+                </div>
+
+                <!-- Entry 3: Film Festival -->
+                <div class="relative flex flex-col lg:flex-row items-start lg:items-center mb-16 pl-16 lg:pl-0">
+                    <div class="absolute left-4 lg:left-1/2 w-4 h-4 bg-[#00f3ff] rounded-full -translate-x-1/2 shadow-[0_0_15px_rgba(0,243,255,0.5)]"></div>
+                    <div class="lg:w-1/2 lg:pr-16 lg:text-right">
+                        <div class="text-[#00f3ff] text-[10px] font-mono tracking-widest uppercase mb-2">2024</div>
+                        <h3 class="hero-font text-xl text-white uppercase mb-2">Film Festival Winner</h3>
+                        <p class="text-gray-400 text-sm leading-relaxed">"You're Not Alone" wins Best of Show at the Hart District Film Festival. A short film exploring paranoia and sleep paralysis that I wrote, directed, and edited. I had no idea that submitting a film to my school's festival would set everything else in motion.</p>
+                    </div>
+                    <div class="lg:w-1/2 lg:pl-16"></div>
+                </div>
+
+                <!-- Entry 4: Lightbox 2024 -->
+                <div class="relative flex flex-col lg:flex-row items-start lg:items-center mb-16 pl-16 lg:pl-0">
+                    <div class="absolute left-4 lg:left-1/2 w-4 h-4 bg-[#00f3ff] rounded-full -translate-x-1/2 shadow-[0_0_15px_rgba(0,243,255,0.5)]"></div>
+                    <div class="lg:w-1/2 lg:pr-16"></div>
+                    <div class="lg:w-1/2 lg:pl-16">
+                        <div class="text-[#00f3ff] text-[10px] font-mono tracking-widest uppercase mb-2">2024</div>
+                        <h3 class="hero-font text-xl text-white uppercase mb-2">Lightbox Expo — Return</h3>
+                        <p class="text-gray-400 text-sm leading-relaxed">Returned to Lightbox Expo and reconnected with Sony recruiters. Met the storyboard artist from Into the Spider Verse. What started as a cold introduction the year before became a real professional relationship.</p>
+                    </div>
+                </div>
+
+                <!-- Entry 5: Gnomon -->
+                <div class="relative flex flex-col lg:flex-row items-start lg:items-center mb-16 pl-16 lg:pl-0">
+                    <div class="absolute left-4 lg:left-1/2 w-4 h-4 bg-[#00f3ff] rounded-full -translate-x-1/2 shadow-[0_0_15px_rgba(0,243,255,0.5)]"></div>
+                    <div class="lg:w-1/2 lg:pr-16 lg:text-right">
+                        <div class="text-[#00f3ff] text-[10px] font-mono tracking-widest uppercase mb-2">2025</div>
+                        <h3 class="hero-font text-xl text-white uppercase mb-2">Gnomon Acceptance</h3>
+                        <p class="text-gray-400 text-sm leading-relaxed">Admitted to the Gnomon School of VFX through a competitive portfolio submission. Began training in 3D modeling, compositing, and environment design under industry professionals. Walking the halls covered in movie posters, almost every one made by a Gnomon alum.</p>
+                    </div>
+                    <div class="lg:w-1/2 lg:pl-16"></div>
+                </div>
+
+                <!-- Entry 6: Riot -->
+                <div class="relative flex flex-col lg:flex-row items-start lg:items-center mb-16 pl-16 lg:pl-0">
+                    <div class="absolute left-4 lg:left-1/2 w-4 h-4 bg-[#00f3ff] rounded-full -translate-x-1/2 shadow-[0_0_15px_rgba(0,243,255,0.5)]"></div>
+                    <div class="lg:w-1/2 lg:pr-16"></div>
+                    <div class="lg:w-1/2 lg:pl-16">
+                        <div class="text-[#00f3ff] text-[10px] font-mono tracking-widest uppercase mb-2">2025</div>
+                        <h3 class="hero-font text-xl text-white uppercase mb-2">Acquired by Riot Games</h3>
+                        <p class="text-gray-400 text-sm leading-relaxed">Within my first 10 week term at Gnomon, my Jinx sculpture, my very first sculpture ever, was acquired by Riot Games. I didn't win best of term for it. But the right people noticed anyway.</p>
+                    </div>
+                </div>
+
+                <!-- Entry 7: What's Next -->
+                <div class="relative flex flex-col lg:flex-row items-start lg:items-center pl-16 lg:pl-0">
+                    <div class="absolute left-4 lg:left-1/2 w-4 h-4 bg-[#00f3ff] rounded-full -translate-x-1/2 shadow-[0_0_15px_rgba(0,243,255,0.5)] animate-pulse"></div>
+                    <div class="lg:w-1/2 lg:pr-16 lg:text-right">
+                        <div class="text-[#00f3ff] text-[10px] font-mono tracking-widest uppercase mb-2">2026</div>
+                        <h3 class="hero-font text-xl text-white uppercase mb-2">What's Next</h3>
+                        <p class="text-gray-400 text-sm leading-relaxed">Actively pursuing studio opportunities in VFX and animation, expanding into Unreal Engine environments, and refining my pipeline workflow. I'm still figuring out exactly what I want to specialize in, whether that's sculpting, 3D modeling, or cinematography, but the goal has never changed. I'll work as hard as I have to and wait as long as I need to. I will get there.</p>
+                    </div>
+                    <div class="lg:w-1/2 lg:pl-16"></div>
+                
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TECHNICAL SKILLS -->
+    <section class="px-6 md:px-20 py-20 relative border-t border-white/5">
+        <div class="max-w-[1400px] mx-auto">
+            <h2 class="hero-font text-3xl md:text-4xl text-white uppercase tracking-tighter mb-16 text-center">Technical Skills</h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+
+                <!-- 3D -->
+                <div class="border border-white/10 p-8 hover:border-[#00f3ff]/30 transition-all group">
+                    <div class="text-[#00f3ff] text-[10px] font-mono tracking-widest uppercase mb-4 flex items-center gap-3">
+                        <div class="w-2 h-2 bg-[#00f3ff] rounded-full"></div>
+                        3D & Environments
+                    </div>
+                    <h3 class="hero-font text-xl text-white uppercase mb-6">Modeling & Worldbuilding</h3>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center border-b border-white/5 pb-3">
+                            <span class="text-gray-400 text-sm">Maya</span>
+                            <span class="text-[#00f3ff] text-[10px] font-mono">PRIMARY</span>
+                        </div>
+                        <div class="flex justify-between items-center border-b border-white/5 pb-3">
+                            <span class="text-gray-400 text-sm">Blender</span>
+                            <span class="text-[#00f3ff] text-[10px] font-mono">PRIMARY</span>
+                        </div>
+                        <div class="flex justify-between items-center border-b border-white/5 pb-3">
+                            <span class="text-gray-400 text-sm">Unreal Engine</span>
+                            <span class="text-gray-500 text-[10px] font-mono">LEARNING</span>
+                        </div>
+                    </div>
+                    <p class="text-gray-500 text-xs mt-6 leading-relaxed">Hard surface modeling, modular asset workflows, product visualization, environment layout, lighting, and rendering.</p>
+                </div>
+
+                <!-- Compositing -->
+                <div class="border border-white/10 p-8 hover:border-[#00f3ff]/30 transition-all group">
+                    <div class="text-[#00f3ff] text-[10px] font-mono tracking-widest uppercase mb-4 flex items-center gap-3">
+                        <div class="w-2 h-2 bg-[#00f3ff] rounded-full"></div>
+                        Compositing & VFX
+                    </div>
+                    <h3 class="hero-font text-xl text-white uppercase mb-6">Layering & Integration</h3>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center border-b border-white/5 pb-3">
+                            <span class="text-gray-400 text-sm">After Effects</span>
+                            <span class="text-[#00f3ff] text-[10px] font-mono">PRIMARY</span>
+                        </div>
+                        <div class="flex justify-between items-center border-b border-white/5 pb-3">
+                            <span class="text-gray-400 text-sm">Photoshop</span>
+                            <span class="text-[#00f3ff] text-[10px] font-mono">PRIMARY</span>
+                        </div>
+                    </div>
+                    <p class="text-gray-500 text-xs mt-6 leading-relaxed">Multi-layer compositing, camera tracking, adjustment stacking, broadcast-quality finishing, photo-bashing, and concept art.</p>
+                </div>
+
+                <!-- Motion & Edit -->
+                <div class="border border-white/10 p-8 hover:border-[#00f3ff]/30 transition-all group">
+                    <div class="text-[#00f3ff] text-[10px] font-mono tracking-widest uppercase mb-4 flex items-center gap-3">
+                        <div class="w-2 h-2 bg-[#00f3ff] rounded-full"></div>
+                        Motion & Editing
+                    </div>
+                    <h3 class="hero-font text-xl text-white uppercase mb-6">Pacing & Storytelling</h3>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center border-b border-white/5 pb-3">
+                            <span class="text-gray-400 text-sm">After Effects</span>
+                            <span class="text-[#00f3ff] text-[10px] font-mono">PRIMARY</span>
+                        </div>
+                        <div class="flex justify-between items-center border-b border-white/5 pb-3">
+                            <span class="text-gray-400 text-sm">InDesign</span>
+                            <span class="text-gray-500 text-[10px] font-mono">SUPPORTING</span>
+                        </div>
+                    </div>
+                    <p class="text-gray-500 text-xs mt-6 leading-relaxed">Motion graphics, rhythmic editing, commercial pacing, title design, animatics, and storyboard-to-screen execution.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- BOTTOM CTA -->
+    <section class="px-6 md:px-20 py-20 border-t border-white/5">
+        <div class="max-w-[1400px] mx-auto text-center">
+            <h2 class="hero-font text-2xl md:text-4xl text-white uppercase tracking-tighter mb-6">Let's Work Together</h2>
+            <p class="text-gray-500 text-sm mb-10 max-w-xl mx-auto">I'm seeking internship and entry-level opportunities where I can bring my organizational discipline, production experience, and creative drive into a real studio pipeline. If my work resonates, I'd love to connect.</p>
+            <div class="flex flex-col md:flex-row gap-4 justify-center">
+                <button onclick="navigateToContact()" class="px-10 py-4 border border-[#00f3ff] text-[#00f3ff] uppercase tracking-widest text-sm hover:bg-[#00f3ff] hover:text-black transition-all">Contact Me</button>
+                <button onclick="navigateTo('projects')" class="px-10 py-4 border border-white/20 text-white uppercase tracking-widest text-sm hover:border-white hover:bg-white hover:text-black transition-all">View Work</button>
+            </div>
+        </div>
+    </section>
+
+</div>
+<div id="asset-modal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4 md:p-10">
+    <div class="absolute inset-0 bg-black/95 backdrop-blur-xl" onclick="closeAsset()"></div>
+    
+    <div class="relative w-full max-w-[95vw] xl:max-w-[1600px] max-h-[95vh] bg-[#080808] border border-white/10 overflow-y-auto custom-scrollbar shadow-[0_0_50px_rgba(0,243,255,0.2)]">
+        <button onclick="closeAsset()" class="absolute top-6 right-6 text-white/50 hover:text-[#00f3ff] z-50 transition-colors">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+
+        <div id="modal-content" class="p-8 lg:p-12">
+            </div>
+    </div>
+</div>
+<!-- REEL MODAL -->
+<div id="reel-modal" class="fixed inset-0 z-[200] hidden items-center justify-center" style="display:none;">
+    <div class="absolute inset-0 bg-black/95 backdrop-blur-xl" onclick="closeReel()"></div>
+    <div class="relative w-full max-w-[1400px] mx-4 z-10">
+        <button onclick="closeReel()" class="absolute -top-12 right-0 text-white/50 hover:text-[#00f3ff] transition-colors">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+<iframe id="reel-video" src="" class="w-full bg-black border border-white/10 shadow-[0_0_80px_rgba(0,243,255,0.2)]" style="aspect-ratio: 16/9;" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+    </div>
+</div>
+    <script>
+	function playReel() {
+    const modal = document.getElementById('reel-modal');
+    const iframe = document.getElementById('reel-video');
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    iframe.src = 'https://drive.google.com/file/d/1BhllNaNcdMNhqA-9CS8WWGrEPQi6gPC4/preview';
+}
+
+function closeReel() {
+    const modal = document.getElementById('reel-modal');
+    const iframe = document.getElementById('reel-video');
+    iframe.src = '';
+    modal.style.display = 'none';
+    document.body.style.overflow = 'auto';
+}
+	const projectDetails = {
+    'archive-jinx': {
+        title: "Jinx Sculpture",
+        desc: "Character sculpting study inspired by Arcane Season 2. Acquired by Riot Games. This piece focuses on the contrast between her chaotic weaponry and vulnerable expression.",
+        media: ['jinx sculpture presentation.mp4'],
+        links: [{label: 'RIOT_GAMES_ARCANE', url: 'https://www.arcane.com/en-us/'}]
+    },
+	'superbowl': {
+    title: "Super Bowl Pitch",
+    desc: "My first animatic ever. The assignment was to create a Super Bowl commercial with a product and a celebrity, but I asked if I could make a commercial for the Super Bowl instead. So I pitched a Netflix sponsorship for Super Bowl LIX featuring The Queen's Gambit. The funny thing is I don't watch football and I've never seen the show. It was just the first thing that came to mind and I rolled with it. The animatic follows the actual order of a football game and a chess match side by side, which is one of my favorite details. Everything was hand drawn on paper, cleaned up in Photoshop, and animated in After Effects.",
+    media: ["The Queen's Gambit SuperBowl Commercial.mp4"]
+},
+    'archive-clock': {
+    title: "The Stopwatch",
+    desc: "Built entirely in Blender in about a week. I've always thought clocks could be fascinating as environmental pieces if you scaled them up, and I wanted to emphasize the detail in the design itself. Three render variations: fully textured and lit, untextured and lit, and an animated camera orbit with the hands spinning. This ended up being a key piece in my Gnomon application reel. A Sony recruiter told me that seeing it at the beginning of my reel made him think he was watching a Gnomon graduate's work.",
+    media: ['clock clcloks0000-0624.mp4', 'THE CLOCKK.png', 'clock.png']
+},
+    'archive-nick': {
+        title: "Nickelodeon Concept",
+        desc: "An alternate universe where Gnomon has Nickelodeon's style. The assignment was open ended: just prove you understand After Effects. The minimum was 10 seconds. When I presented it, the whole class clapped and my teacher told me after class that I was the first student he'd ever recommended submit their final for best of term.",
+        media: ['ArmandSlaton_IntroToComp_ConceptNickelodeon.mp4']
+    },
+    'archive-sev': {
+    title: "Severance Fan-Trailer",
+    desc: "A fan made Severance trailer I pitched as a collab with @refined_severance on Instagram. I reached out to them, proposed the idea, and they posted it. Made entirely in After Effects with assets built in Photoshop, like separating the elevator doors into individual layers. Two versions: horizontal for desktop and vertical for mobile with custom captions. Sourced all footage in 4K from a subscription clip site. I love Severance for the minimal yet complicated style and all the hidden details you have to pay attention to, and I wanted the trailer to feel the same way.",
+    media: ['https://drive.google.com/file/d/1PHr9qvAYBdK6pHScsI5I_Xt5jj_Gs_dH/preview', 'https://drive.google.com/file/d/1sY_btYrugARc9hODEHiwEmvZ7huV6Zaq/preview']
+	},
+    'archive-head': {
+    title: "Headphones Pitch",
+    desc: "A JBL product commercial I made for fun because my sister always used JBL growing up. My first time animating a camera with complex movements using the graph editor, which was intimidating at first. I lit the scene, animated all the camera work, and edited everything together in Blender and After Effects. Took about 2 weeks. Built to get comfortable with the graph editor and understand commercial timing and pacing.",
+    media: ['COMMERCIALLALSLAL.mp4']
+},
+    'factory': {
+        title: "Toaster Factory Concept",
+        desc: "My first concept art piece ever. For a Photoshop class assignment, I looked straight down into my toaster while it was on and saw a factory: rusty metal, glowing wires, the bread grips looking like industrial beams being transported. I blocked out the scene in Blender first to understand every crevice, then photo bashed the full environment in Photoshop. You can almost feel the heat coming off it.",
+        media: ['FINNISHED PRODUCT.png']
+    },
+    'mailroom': {
+    title: "The Mailroom",
+    desc: "A Wes Anderson inspired mailroom modeled in Blender. I took a photo of where I get my mail in my neighborhood and it reminded me of his films, so I used it as my reference and made it fancier. Color palettes pulled from the book 'Accidentally Wes Anderson.' Multiple color variations because with this kind of environment, a different palette completely changes the vibe. Built in about 4 days as a dual purpose piece for both my AP Studio Art final and my Gnomon application reel.",
+    media: ['mailroom version 1.png', 'mailroom version 2.png', 'mailroom version 3.png', 'mailroom version 4.png', 'mailroom wireframe.png']
+},
+    'iphone': {
+    title: "iPhone 3D",
+    desc: "Modeled in Blender in about a week as a dual purpose piece for my AP Studio Art final and Gnomon application reel. Originally I added a ridiculous amount of cameras on the back to make fun of how every new phone version just adds another one. Looked super uncanny. Then I removed them for the clean version in my reel. Built to practice hard surface modeling and texturing.",
+    media: ['iphone render.png']
+},
+    'shortfilm': {
+    title: "You're Not Alone",
+    desc: "A 19 minute short film I wrote, directed, and produced in two weeks. It was the longest film at the Hart District Film Festival and received a standing ovation before winning Best of Show. The story combines two feelings I wanted to explore: seeing shadow people in your peripheral vision and the helplessness of sleep paralysis. I cast and coordinated 11 actors, sourced my own production lighting, and edited the final cut myself.",
+    media: ['https://drive.google.com/file/d/1a0MEajVrXkOnvcGRk6SCGKxM2AGH2uL0/preview'],
+    links: [
+        {label: 'VIEW_INTERVIEW', url: 'https://youtu.be/CTkCyohxW6U'},
+        {label: 'READ_ARTICLE', url: 'https://signalscv.com/2024/03/hart-district-film-festival-draws-diverse-lineup/'}
+    ]
+},
+	'wallpapers': {
+    title: "Alt Gnomon Logos",
+    desc: "Something I started doing on my own that caught on with people around me. I take well known brand aesthetics like Netflix, Marvel, Arcane, and Minecraft, break them down, and rebuild them with the word 'Gnomon.' Over 30 and counting since I make new ones every term. The Arcane one was my first and the hardest, but also my best. Made in Photoshop with occasional Blender and After Effects work.",
+    media: ['full comparison of most wallpapers.png']
+},
+    'gnomon-app': {
+    title: "Gnomon Application Reel",
+    desc: "A 6 minute application reel I edited to match the style of the official Gnomon student reel, replicating their intro and outro almost 1:1. I worked closely with a Gnomon admissions advisor on what to include and in what order. It took about a week and a half to cut together. Looking back, I've outgrown most of the work in this reel, but it did what it needed to do. I got in.",
+    media: ['PORTFOLIO FINAL FINAL RENDER.mp4']
+},
+    'unreal': {
+        title: "Subway Environment (WIP)",
+        desc: "A fully textured subway interior built entirely in Unreal Engine, my first time using it. The assignment was to block out an environment at correct scale and texture 3 of 6 modular props. I made 14 modular props instead and fully modeled, textured, and lit the entire interior using a proper master material and material instance system. Inspired by Dave Merritt's concept art for Batman: Caped Crusader.",
+        media: ['Unreal_Render.png', 'Reference.png', 'unreal.png']
+    }
+};
+        // NAVIGATION & MENU
+        function navigateTo(pageId) {
+            document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active-page'));
+            document.getElementById(pageId + '-page').classList.add('active-page');
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+        function navigateToContact() { navigateTo('home'); setTimeout(() => { document.getElementById('contact').scrollIntoView({behavior: 'smooth'}); }, 100); toggleMenu(); }
+        function toggleMenu() { document.getElementById('side-menu').classList.toggle('active'); document.getElementById('menu-overlay').classList.toggle('active'); }
+        function countChars() { const m = document.getElementById('message'); const c = document.getElementById('count'); c.innerText = 600 - m.value.length; c.style.color = (600 - m.value.length) < 50 ? "#ff4444" : "#666"; }
+
+       // --- CLICK TO PLAY/PAUSE LOGIC ---
+        function toggleVideo(id) {
+            const vid = document.getElementById(id);
+            const btn = vid.parentElement.querySelector('.control-btn');
+
+            if (vid.paused) {
+                document.querySelectorAll('video').forEach(v => { if(v !== vid) v.pause(); });
+                vid.play();
+                btn.innerText = "||"; 
+            } else {
+                vid.pause();
+                btn.innerText = "►"; 
+            }
+        }
+
+        document.querySelectorAll('video').forEach(vid => {
+            vid.addEventListener('pause', () => {
+                const btn = vid.parentElement.querySelector('.control-btn');
+                if(btn) btn.innerText = "►";
+            });
+            vid.addEventListener('play', () => {
+                const btn = vid.parentElement.querySelector('.control-btn');
+                if(btn) btn.innerText = "||";
+            });
+        });
+        
+        function seekVideo(id, val) { const vid = document.getElementById(id); vid.currentTime = vid.duration * (val / 100); }
+        
+        function setVolume(id, val) { 
+            const vid = document.getElementById(id);
+            vid.muted = false; 
+            vid.volume = val; 
+        }
+        
+        document.querySelectorAll('video').forEach(vid => {
+            vid.addEventListener('timeupdate', () => {
+                const bar = vid.parentElement.querySelector('.progress-bar');
+                if(bar) bar.value = (vid.currentTime / vid.duration) * 100;
+            });
+        });
+
+        // --- SCROLL AUTOPLAY (MUTED) ---
+        const videoObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        const video = entry.target;
+        const overlay = video.closest('.custom-video-wrapper').querySelector('.video-overlay-play');
+        
+        // If the video is visible and the play overlay is STILL there (meaning hasn't been clicked yet)
+        if (entry.isIntersecting) {
+            if (overlay.style.display !== 'none') {
+                video.muted = true;
+                video.play();
+            }
+        } else {
+            // Optional: Pause when scrolling away to save CPU/Battery
+            video.pause();
+        }
+    });
+}, { threshold: 0.2 }); // Trigger earlier so they are playing by the time the user sees them
+
+document.querySelectorAll('.scroll-video').forEach(vid => videoObserver.observe(vid));
+
+        // --- HEADER SCROLL ---
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (!entry.isIntersecting) { 
+                    document.getElementById('masked-header').classList.add('visible'); 
+                    document.getElementById('nav-bar').classList.add('scrolled'); 
+                } else { 
+                    document.getElementById('masked-header').classList.remove('visible'); 
+                    document.getElementById('nav-bar').classList.remove('scrolled'); 
+                }
+            });
+        }, { threshold: 0.1 });
+        observer.observe(document.getElementById('hero-trigger'));
+
+        // --- CUSTOM CURSOR LOGIC ---
+        document.addEventListener('mousemove', (e) => {
+            document.getElementById('cursor').style.left = e.clientX + 'px';
+            document.getElementById('cursor').style.top = e.clientY + 'px';
+            document.getElementById('cursor-dot').style.left = e.clientX + 'px';
+            document.getElementById('cursor-dot').style.top = e.clientY + 'px';
+        });
+
+        document.querySelectorAll('a, button, .group, input, textarea, .holo-panel, .project-stack-item').forEach(el => {
+            el.addEventListener('mouseenter', () => { 
+                document.getElementById('cursor').style.transform = 'translate(-50%, -50%) scale(2.5)'; 
+                document.getElementById('cursor').style.backgroundColor = 'rgba(0, 243, 255, 0.1)'; 
+            });
+            el.addEventListener('mouseleave', () => { 
+                document.getElementById('cursor').style.transform = 'translate(-50%, -50%) scale(1)'; 
+                document.getElementById('cursor').style.backgroundColor = 'transparent'; 
+            });
+        });
+
+        // --- TYPEWRITER EFFECT LOGIC ---
+        const scriptText = `You're Not Alone
+
+Written by Armand Slaton
+
+FADE IN:
+A low frequency noise gets louder as it fades in. Eye level zoom in shot of lily sleeping on the couch.
+KAT
+(Singsong)
+Good morning! Jeez! How late did you go to bed?
+Whip pan to Kat behind the couch and slow pan back to lily at eye level. Lily's face sits in the middle of the first vertical line in the rule of thirds. Side table is now in frame on the second vertical line.
+The low frequency noise gets interrupted and Lily slowly wakes up. She groans and tries to go back to sleep in frustration.
+She rolls over, facing the ceiling. Tracking shot leads to overhead shot. The low frequency noise gets louder once again as lily drifts back to sleep.
+Her phone is now visible on the second vertical line on the side table due to the overhead shot. Her alarm goes off and she reaches her arm over to turn it off. She groans again.
+MATCH CUT TO:
+
+Lily fills up a glass with water from her fridge. Kat talks in the background, the noise is muffled. Lily drinks her glass of water as Kat stands in the background and continues to talk to lily, who isn't paying attention. Camera focuses on Kat as Lily finishes her water.
+KAT
+(Singsong)
+...so don't destroy the house while I'm gone okay?
+LILY
+(Unfocused) Uh-huh.
+KAT
+(Serious)
+Were you paying attention to anything I just said?
+
+LILY
+Uh-huh.
+KAT
+Okay... then what did I just tell you?
+LILY
+(Annoyed)
+I don't know. Something about you being gone? ...Again?
+Lily turns to Kat with a serious face. The tone of the conversation shifts drastically and they both pause for a moment. Kat shifts to an apologetic tone.
+KAT
+(Apologetic)
+Look... I'm sorry about your birthday-
+LILY
+I just figured my own mother would be there of all people. You were supposed to bring the cake after all...
+KAT
+Again, I'm really sorry I wasn't there. Someone couldn't meet the deadline and I was called in last minute to take over but- ...that's not the point. It won't happen again.
+LILY
+I've heard that one before.
+KAT
+...Let me make it up to you. When I get back from my trip on Friday, We can have a movie night and order takeout? How does that sound?
+LILY
+(Interested)
+And you'll put your work aside?
+KAT
+No texts, No calls, No meetings, Nothing! It'll just be me, you, a bowl of popcorn, and a movie marathon.
+
+Lily sits on that thought for a moment. Her expression slightly changes from frustrated to happy. She smiles at the thought of it.
+LILY
+(Hopeful) Promise?
+KAT
+(Determined) I promise.
+Kat walks up for a hug goodbye. They hug for a few seconds.
+KAT
+I love you sweetheart.
+LILY
+I love you too mom.
+Kat pulls away in shock and gathers the rest of her belongings.
+KAT
+(Surprised)
+Oh wow I'm about to be late for my flight! I'll be back in about a week okay? I left money for groceries on the counter. I expect this house to be in one piece by the time I get back.
+LILY
+(Jokingly)
+I can't promise that, but we'll see.
+Kat runs in for a quick kiss goodbye on the forehead.
+KAT
+Alright. I'll see you later!
+LILY
+Bye!
+KAT
+Bye!
+
+Lily watches as her mom leaves and notices the calendar on the fridge. The camera focuses on the calendar on the right as Kat fades into the background on the left. Lily stands in the middle.
+Lily skims through the days and stops at Friday. She writes down “movie night with mom” and smiles. Quick camera cut to show emotion. She circles it and closes the marker.
+
+She walks into the living room and sits down and turns the tv on.
+CUT TO:
+
+Lily has fallen asleep on the couch with snacks around her and plates and bowls on the table. The Tv is still on. She wakes up randomly and is slightly disoriented. She looks around confused. Wondering if it’s the next day or still nighttime. Wondering if she’s being watched or if she’s really alone.
+Close up shot as she sits up and stares at the camera. A shadowy figure is hidden in the background in the kitchen.
+Lily searches for her phone amongst the mess and checks the time on her phone. It reads 2AM. She lets out a big sigh and heads to her room.
+
+She sets her phone down on the bedside table and falls back to sleep instantly. She lies on her back (specifically).
+FADE OUT.
+
+Low frequency vibrations get louder.
+Lily’s phone vibrates as her alarm goes off. She opens her eyes softly and quickly comes to the realization that she can’t move. Her eyes widen in shock and she looks around frantically.
+
+She spots a shadowy figure in the corner of her room. It isn’t moving or talking, just standing completely still. The vibration of her alarm builds tension as it keeps going off. Low frequency vibrations build in the background. She starts breathing uncontrollably And can’t seem to calm down.
+Extreme close ups of her fingers slightly moving. Twitching. She is terrified to move incase the shadow could jump at her at any moment. She finally breaks free from her paralysis and swiftly grabs her phone to shut it off.
+Whip pan to her grabbing her phone and pan back to the corner in which the shadow stood. It’s gone.
+CUT TO:
+
+Lily walks across campus. Camera POV shot of something following her and she doesn’t know it yet. The camera gets closer and closer. She quickly turns around, quick cut to a tall shadow figure behind her.
+Lily screams looking up at an angle above the person standing next to her. Medium shot. Tiana jumps in fear from Lily’s sudden scream.
+LILY
+(Terrified)
+AHH!
+TIANA
+(Surprised)
+AH!
+LILY
+I’m so sorry! You scared me! You literally came out of nowhere!
+The two continue walking across campus.
+TIANA
+(Still stunned)
+I was calling your name, but you never said anything!
+LILY
+Really? I swear I didn’t hear anything.
+Tiana gives Lily a concerned look.
+TIANA
+(Suspicious)
+Are you ok? You’re looking a little pale?
+LILY
+(Joking)
+I always look pale.
+Lily points to her hand and gives Tiana a confused yet stern look.
+TIANA
+Oh you know what I mean!
+Lily laughs with Tiana and agrees.
+TIANA
+Are you ok though?
+LILY
+Yeah, sorry. I’ve been so distracted all morning. I think I got sleep paralysis.
+TIANA
+(Surprised)
+Woah! Really?! How long did it last? Or- how long were you stuck for? Yeah.
+LILY
+Not long. Maybe like 5… 6 minutes? But it felt like I was stuck for hours! I swear it was the scariest thing I’ve ever experienced.
+TIANA
+(Excited- nearly interrupting)
+What did your sleep paralysis demon look like? -wait first of all, did you see one?
+SERIES OF CUTAWAYS:
+Camera focuses on lily, close up, she thinks about this morning. Shots of the shadow in the corner follow her dialogue.
+LILY
+I did see one, but I couldn’t really tell what it was.
+It looked like a shadowy figure standing in the corner of my room.
+
+CUT TO:
+
+TIANA
+(Cont.)
+Did it do anything?
+LILY
+(Cont.)
+No, it was just... staring at me the whole time.
+Establishing shot of Lily's house. This now takes place after school.
+
+Tracking shot of Lily walking into her house and setting her stuff down in the dining room.
+Lily walks through the front door and sees a shadow in the corner of her eye. Extreme close up of her eyes shifting to her left. She gasps for a moment and realizes it's just a coat.
+
+Multiple hanging coats are now shown all over the house in the background. Lily sets her stuff down and walks to the calendar on the fridge. She crosses off Monday and returns to the dining room. She sits down next to her stuff and goes on her phone. She turns around and sees the top of someone's head hide around the corner at the end of the hallway. Lily stands up in fear.
+LILY
+(Scared) Hello?
+Single continuous shot. Lily grabs something she can use as a weapon off of the table and slowly walks to the end of the hallway to see if anyone was actually there.
+LILY
+(Scared) Hello???
+
+She slowly makes her way to the closet door at the end of the hallway and looks around. She doesn't see anyone. She looks in the closet and looks through the clothes but still, no one. The shadowy figure is shown hiding by the front door, but lily never sees it. She closes the closet door still stunned by what she thinks she saw. The camera sits in the closet so when she closes the door, it goes black.
+
+No low frequency vibration this time.
+Her alarm goes off and she opens her eyes. She hesitates a little due to her fear that she might have sleep paralysis again. Then she turns it off and looks around the room in relief.
+CUT TO:
+
+Close-up of Lily opening the lid for the butter. She spreads butter over her toast. She closes the lid. She takes a bite.
+She looks around for a bit then glances over at the calendar on the fridge. Switch camera angles. She walks over to the calendar and crosses off Tuesday, then opens the fridge for a drink, but then she hears a strange noise. She looks over to see nothing out of the ordinary. Camera angle makes you think there's a jump-scare behind the fridge. Horror fake-out. She closes the fridge and nothing is there.
+She walks away and there's a close-up on the calendar.
+CUT TO:
+
+Pull in shot of Lily working on an assignment class. Overhead shot. Close-up shot of Lily's expression to the assignment.
+She gets stuck on a question and can't figure out the answer so she raises her hand to ask for help.
+
+She looks over at the teacher but then notices something off about something outside the window next to them. She zones out while looking outside. Pull-in shots. The teacher has been calling Lily's name for a while but it's muffled over the noise of the low frequency vibration getting louder and Lily not focusing. The teacher, while blurred out, can be seen looking confused and waving their hands to try and get Lily's attention. The teacher walks up to Lily and walks off frame. Lily finally tunes back in to her name being called by the teacher.
+TEACHER
+(Confused) Lily? Hello!? Lily!
+LILY
+Huh- Yes?! What? ...-did you need?
+TEACHER
+You raised your hand?
+Lily looks down and remembers why she had her hand raised.
+LILY
+...Yes! -umm... could you help me with number 6?
+TEACHER
+(insert teacher answer)
+Camera pulls out and turns around to the window. Switch POV to looking through the class window from the outside from behind a building. Camera pulls back and almost "hides" behind the building.
+As the teacher is explaining the answer, Lily glances at the window for a moment, she feels something is still off. The teacher continues talking and she tunes back in to the conversation.
+
+Lily walks to her front door, extremely exhausted.
+
+She walks to her room and throws her stuff down and passes out on her bed. On her way to her room, there are multiple shadowy figures behind multiple corners of her house. She opens her eyes and she slowly drifts to sleep.
+FADE OUT.
+
+Low-frequency vibration gets louder once again.
+MATCH CUT TO:
+Lily's alarm goes off and her phone vibrates. Lily wakes up and gets annoyed listening to her phone vibrate. She sighs and tries to reach for her phone, but she can't move. She has sleep paralysis again.
+Her eyes quickly dart to the corner of her room where the shadowy figure stood yesterday. She sees that it's not in the corner anymore, but it's closer. It's now at the foot of her bed.
+Long uncomfortable camera shots of the shadow by her feet and extreme close ups of lily's eyes.
+MATCH CUT TO:
+
+Extreme close-up of lily at school. The vibration of lily's phone is now an electric eraser that Tiana is using on her drawing. Extreme close-up of the eraser. Lily looks really tired and has bags under her eyes. Alison calls Lily's name but it's muffled. Lily finally hears her name. She looks around now and then while she talks because of her paranoia.
+ALISON
+(Muffled)
+Lily? Lily? Are you ok? Hello?
+ALISON
+(Clear)
+Lily?
+LILY
+Huh? What was the question?
+Alison laughs awkwardly.
+ALISON
+What's wrong?
+LILY
+Oh, nothing. I'm just really tired. I don't think I got much sleep last night.
+Lily starts to zone out again.
+
+ALISON
+(Muffled)
+When did you go to sleep?
+ALISON
+(Muffled)
+Lily?
+Alison is confused on why Lily can't hear her and looks around to everyone else at the table and shrugs "I don't know." The others look a little concerned and carry on with their conversation. Alison joins in.
+Lily notices a dark corner in the room. She stares at it for a moment and the shots alternate between her and the corner.
+Tracking shot of Lily’s face as she turns back to the group. The bell’s about to ring and Alex announces it to the others. Lily tunes back in and the outside noises become clear.
+ALEX
+The bell’s about to ring. We should probably start heading out.
+People start standing up but Tiana is still sitting down. Tiana has a lot of stuff out and realizes she needs to hurry and pack everything up.
+TIANA Oh! Uhh... -Ok...
+Tiana looks around frantically and grabs a pack of markers and asks Lily if she can help her out and put the markers back.
+TIANA
+Can you help me put these back?
+LILY
+Where do they go?
+TIANA
+In the back.
+Tiana points to the back of the art room and Lily looks over with the markers in her hand. She walks to the back and sees the door is closed. She opens it and the lights are off.
+Long shot and building tension. Lily is too scared to go inside because it’s too dark. Close-up shot of Lily, pull in.
+
+She props the door open with a rock next to the door and frantically searches for the light switch. She turns it on and walks around looking for where to put the markers. She eventually finds the other markers and places them down.
+She turns around and the shadowy figure stands tall in the doorway. It flips the switch and disappears in the darkness. Lily gasps and runs for the door. A dark hand pulls the rock away from the door and it slams shut.
+Lily screams and shouts for help. She hyperventilates and starts banging on the door, desperate to get out, in fear that the shadow will hurt her. The art teacher unlocks the door and opens it to find out what the noise is.
+ART TEACHER
+(Confused)
+Oh! What happened?! What's wrong?!
+Lily gets disoriented and frantically looks around in fear. Her paranoia worsens.
+Lily stumbles over her words.
+LILY
+(Scared/Frantic) Someone locked the door!
+ART TEACHER
+Did you see who did it? How long have you been in there?
+Lily walks to the front door to leave and notices that there are no students in the class. It's just the teacher.
+LILY
+Where did everyone go?
+ART TEACHER
+-uhh... Home? School ended.
+LILY
+(Confused)
+... We just had brunch?
+The shot lingers and the tension rises. Pull in shot.
+ART TEACHER
+(Concerned)
+...How long were you in there?
+Lily starts running to the door as she starts to realize she might be going crazy.
+
+ART TEACHER
+Wait where are you going?
+MATCH CUT TO:`;
+
+        const typingSpeed = 30; 
+        let charIndex = 0;
+
+        function typeWriter() {
+            const leftContainer = document.getElementById("ghost-script-left");
+            
+            if (!leftContainer) return; 
+            
+            if (charIndex < scriptText.length) {
+                let leftContent = scriptText.substring(0, charIndex).replace(/\n/g, "<br>");
+                leftContainer.innerHTML = leftContent + '<span class="typing-cursor"></span>';
+                charIndex++;
+                setTimeout(typeWriter, 30); 
+            } else {
+                setTimeout(() => {
+                    charIndex = 0;
+                    typeWriter();
+                }, 5000);
+            }
+        }
+
+        typeWriter();
+		
+		function openFullscreen(id) {
+    const video = document.getElementById(id);
+    
+    if (video.requestFullscreen) {
+        video.requestFullscreen();
+    } else if (video.webkitRequestFullscreen) { /* Safari */
+        video.webkitRequestFullscreen();
+    } else if (video.msRequestFullscreen) { /* IE11 */
+        video.msRequestFullscreen();
+    }
+}
+function navigateTo(pageId) {
+    document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active-page'));
+    document.getElementById(pageId + '-page').classList.add('active-page');
+    window.scrollTo({top: 0, behavior: 'smooth'});
+    history.replaceState(null, '', '#' + pageId);
+}
+// On page load, check hash and restore page
+(function() {
+    const hash = window.location.hash.replace('#', '');
+    if (hash && document.getElementById(hash + '-page')) {
+        document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active-page'));
+        document.getElementById(hash + '-page').classList.add('active-page');
+    }
+})();
+// Function to handle the big pulsing button
+async function enterCinematicView(id) {
+    const video = document.getElementById(id);
+    const wrapper = video.closest('.custom-video-wrapper');
+    const controls = wrapper.querySelector('.video-controls');
+    const overlay = wrapper.querySelector('.video-overlay-play');
+
+    // 1. Reset to beginning and setup audio
+    video.currentTime = 0; 
+    video.muted = false;
+    video.volume = 0.8;
+    video.classList.remove('dimmed');
+    
+    // 2. UI State
+    if(overlay) overlay.style.display = 'none';
+    if(controls) controls.classList.remove('hidden-ui');
+
+    // 3. Fullscreen Transition
+    try {
+        if (video.requestFullscreen) {
+            await video.requestFullscreen();
+        } else if (video.webkitRequestFullscreen) {
+            await video.webkitRequestFullscreen();
+        }
+    } catch (err) {
+        console.warn("Fullscreen blocked by browser policy.");
+    }
+
+    // 4. Play from start
+    video.play();
+}
+
+// Function to handle clicking directly on the video
+function handleVideoClick(id) {
+    const video = document.getElementById(id);
+    const overlay = video.closest('.custom-video-wrapper').querySelector('.video-overlay-play');
+    
+    // Only allow manual play/pause if the initial "Cinematic" button is gone
+    if (overlay.style.display === 'none') {
+        if (video.paused) {
+            video.play();
+        } else {
+            video.pause();
+        }
+    }
+}
+function filterProjects(category) {
+    const cards = document.querySelectorAll('.project-card');
+    const links = document.querySelectorAll('.filter-link');
+    
+    links.forEach(link => {
+        link.classList.remove('active-filter');
+        if (link.getAttribute('onclick').includes(category)) {
+            link.classList.add('active-filter');
+        }
+    });
+
+    cards.forEach(card => {
+        card.classList.add('glitch-active');
+        
+        setTimeout(() => {
+            card.classList.remove('glitch-active');
+            
+            let isVisible = (category === 'all' || card.classList.contains(category));
+            
+            if (isVisible) {
+                card.style.display = 'block';
+                setTimeout(() => {
+                    card.classList.remove('hidden-asset');
+                }, 10);
+
+                // Reset column spans
+                card.classList.remove('lg:col-span-2', 'lg:col-span-3', 'lg:col-span-4', 'lg:col-span-6');
+                
+                if (category === 'all') {
+                    // Restore original layout
+                    let originalSpan = card.dataset.span || '2';
+                    card.classList.add('lg:col-span-' + originalSpan);
+                } else {
+                    // Uniform grid for filtered view
+                    card.classList.add('lg:col-span-3');
+                    card.style.height = '350px';
+                }
+            } else {
+                card.classList.add('hidden-asset');
+                setTimeout(() => {
+                    card.style.display = 'none';
+                }, 600);
+            }
+        }, 300);
+    });
+
+    // Restore original heights when back to ALL
+    if (category === 'all') {
+        setTimeout(() => {
+            cards.forEach(card => {
+                card.style.height = '';
+            });
+        }, 310);
+    }
+}
+function openAsset(key) {
+    const data = projectDetails[key];
+    if (!data) return;
+    const modal = document.getElementById('asset-modal');
+    const content = document.getElementById('modal-content');
+
+    let mainMedia = data.media[0];
+
+    function buildMediaTag(src, classes) {
+    if (src.includes('drive.google.com/file') || src.includes('youtube.com/embed/')) {
+        return `<div class="w-full h-full"><iframe class="w-full h-full" src="${src}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div>`;
+    } else if (src.toLowerCase().endsWith('.mp4') || src.toLowerCase().endsWith('.mov')) {
+        return `<video src="${src}" controls class="${classes} bg-black"></video>`;
+    } else {
+        return `<img src="${src}" class="${classes}">`;
+    }
+}
+
+    function buildThumb(src, index) {
+        let isMain = index === 0;
+        let label = isMain ? 'MAIN' : '';
+let type = (src.toLowerCase().endsWith('.mp4') || src.toLowerCase().endsWith('.mov') || src.includes('drive.google.com/file') || src.includes('youtube.com/embed/')) ? 'video' : 'image';
+        let inner = '';
+        if (src.includes('drive.google.com/file') || src.includes('youtube.com/embed/')) {
+            inner = `<div class="w-full h-full bg-black flex items-center justify-center"><span class="text-[#00f3ff] text-[8px] font-mono">▶ VIDEO</span></div>`;
+        } else if (type === 'video') {
+            inner = `<video src="${src}" muted class="w-full h-full object-cover pointer-events-none"></video>`;
+			} else {
+            inner = `<img src="${src}" class="w-full h-full object-cover">`;
+        }
+        return `<div class="thumb-item aspect-video bg-black border-2 ${isMain ? 'border-[#00f3ff] shadow-[0_0_12px_rgba(0,243,255,0.4)]' : 'border-white/10'} cursor-pointer hover:border-[#00f3ff] transition-all overflow-hidden relative" onclick="swapMainMedia('${src}', '${type}', this)" data-index="${index}">
+            ${inner}
+            ${isMain ? '<div class="absolute top-1 left-1 text-[8px] font-mono text-[#00f3ff] bg-black/80 px-1 uppercase">Main</div>' : ''}
+        </div>`;
+    }
+
+let allThumbs = data.media.slice(1).map((item, i) => buildThumb(item, i + 1)).join('');
+
+    let thumbsColumn = data.media.length > 1 ? `
+        <div class="flex flex-col gap-3 w-full lg:w-[180px] shrink-0 order-2 lg:order-first">
+            <div class="text-[10px] text-gray-500 font-mono uppercase tracking-widest mb-1">Assets [${data.media.length}]</div>
+            <div class="grid grid-cols-3 lg:grid-cols-1 gap-3" id="thumb-grid">
+                ${allThumbs}
+            </div>
+        </div>` : '';
+
+    let mainHTML = buildMediaTag(mainMedia, 'w-full h-full object-contain');
+
+    content.innerHTML = `
+        <div class="flex flex-col lg:flex-row gap-8">
+            ${thumbsColumn}
+            <div class="flex flex-col flex-grow min-w-0">
+                <div id="main-media-view" class="w-full bg-black border border-white/10 overflow-hidden flex items-center justify-center" style="height: 600px;">
+                    ${mainHTML}
+                </div>
+				<div class="flex justify-end mt-2">
+                    <button onclick="fullscreenMedia()" class="flex items-center gap-2 px-4 py-2 border border-white/10 hover:border-[#00f3ff] bg-black/50 hover:bg-[#00f3ff]/10 transition-all text-gray-400 hover:text-[#00f3ff] text-[10px] font-mono uppercase tracking-widest">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
+                        Fullscreen
+                    </button>
+                </div>
+                <div id="return-bar" class="hidden mt-3">
+                    <button onclick="returnToMain()" class="flex items-center gap-3 px-5 py-3 border border-[#00f3ff]/30 bg-[#00f3ff]/5 hover:bg-[#00f3ff]/20 transition-all text-[#00f3ff] text-[11px] font-mono uppercase tracking-widest">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                        Return to Finished Product!
+                    </button>
+                </div>
+            </div>
+            <div class="flex flex-col w-full lg:w-[300px] shrink-0">
+<div class="text-[#00f3ff] text-[10px] font-mono mb-4 uppercase tracking-widest">Project Details</div>
+                <h2 class="hero-font text-3xl text-white mb-6 uppercase leading-tight">${data.title}</h2>
+                <div class="w-12 h-1 bg-[#00f3ff] mb-8"></div>
+                <p class="text-gray-400 text-sm leading-relaxed mb-8 border-l border-white/20 pl-6">${data.desc}</p>
+                ${data.links ? data.links.map(l => `<a href="${l.url}" target="_blank" class="px-6 py-4 border border-[#00f3ff]/50 text-[#00f3ff] text-center hover:bg-[#00f3ff] hover:text-black transition-all font-mono text-[10px] uppercase mb-3">${l.label}</a>`).join('') : ''}
+            </div>
+        </div>`;
+
+    // Store main media src for return button
+    content.dataset.mainSrc = mainMedia;
+    content.dataset.mainType = (mainMedia.toLowerCase().endsWith('.mp4') || mainMedia.toLowerCase().endsWith('.mov')) ? 'video' : 'image';
+
+    modal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+function swapMainMedia(src, type, thumbEl) {
+    const mainView = document.getElementById('main-media-view');
+    const returnBar = document.getElementById('return-bar');
+    const content = document.getElementById('modal-content');
+
+   // Update main view
+    if (src.includes('drive.google.com/file') || src.includes('youtube.com/embed/')) {
+        mainView.innerHTML = `<div class="w-full h-full"><iframe class="w-full h-full" src="${src}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div>`;
+    } else if (type === 'video') {
+        mainView.innerHTML = `<video src="${src}" controls autoplay class="w-full h-full object-contain bg-black"></video>`;
+    } else {
+        mainView.innerHTML = `<img src="${src}" class="w-full h-full object-contain">`;
+    }
+
+    // Update thumb borders - remove glow from all, add to clicked
+    document.querySelectorAll('.thumb-item').forEach(t => {
+        t.classList.remove('border-[#00f3ff]', 'shadow-[0_0_12px_rgba(0,243,255,0.4)]');
+        t.classList.add('border-white/10');
+    });
+    thumbEl.classList.remove('border-white/10');
+    thumbEl.classList.add('border-[#00f3ff]', 'shadow-[0_0_12px_rgba(0,243,255,0.4)]');
+
+    // Show/hide return bar
+    // Always show return bar when clicking a side thumbnail
+    returnBar.classList.remove('hidden');
+}
+
+function returnToMain() {
+    const content = document.getElementById('modal-content');
+    const mainSrc = content.dataset.mainSrc;
+    const mainType = content.dataset.mainType;
+    const mainView = document.getElementById('main-media-view');
+    const returnBar = document.getElementById('return-bar');
+
+    if (mainSrc.includes('drive.google.com/file') || mainSrc.includes('youtube.com/embed/')) {
+        mainView.innerHTML = `<div class="w-full h-full"><iframe class="w-full h-full" src="${mainSrc}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div>`;
+    } else if (mainType === 'video') {
+        mainView.innerHTML = `<video src="${mainSrc}" controls class="w-full h-full object-contain bg-black"></video>`;
+    } else {
+        mainView.innerHTML = `<img src="${mainSrc}" class="w-full h-full object-contain">`;
+    }
+
+    document.querySelectorAll('.thumb-item').forEach(t => {
+        t.classList.remove('border-[#00f3ff]', 'shadow-[0_0_12px_rgba(0,243,255,0.4)]');
+        t.classList.add('border-white/10');
+    });
+
+    returnBar.classList.add('hidden');
+}
+function fullscreenMedia() {
+    const mainView = document.getElementById('main-media-view');
+    const media = mainView.querySelector('video') || mainView.querySelector('img');
+    if (!media) return;
+
+    if (media.tagName === 'VIDEO') {
+        if (media.requestFullscreen) media.requestFullscreen();
+        else if (media.webkitRequestFullscreen) media.webkitRequestFullscreen();
+    } else {
+        // Images can't natively fullscreen, so fullscreen the container
+        if (mainView.requestFullscreen) mainView.requestFullscreen();
+        else if (mainView.webkitRequestFullscreen) mainView.webkitRequestFullscreen();
+    }
+}
+// Auto-play first video in modal with audio
+const modalVid = content.querySelector('video');
+if (modalVid) {
+    modalVid.muted = true;
+    modalVid.volume = 0.8;
+    modalVid.addEventListener('loadeddata', function() {
+        modalVid.play();
+    });
+    modalVid.load();
+}
+document.addEventListener('fullscreenchange', () => {
+    if (document.fullscreenElement) {
+        document.body.style.cursor = 'auto';
+    } else {
+        document.body.style.cursor = 'none';
+    }
+});
+function closeAsset() {
+    document.getElementById('asset-modal').classList.add('hidden');
+    document.body.style.overflow = 'auto';
+}
+    </script>
+</body>
+</html>
